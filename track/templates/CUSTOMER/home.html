@@ -1,0 +1,139 @@
+{% extends 'commen.html' %}
+{% load static %}
+
+{% block title %}TrackParcel | Customer Dashboard{% endblock %}
+
+{% block content %}
+<div class="tp-header-banner">
+  <div class="container d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <div>
+      <span class="badge bg-primary text-white fw-bold mb-1">CUSTOMER PORTAL</span>
+      <h2 class="display-6 fw-bold mb-0">Welcome, {{ customer.name }}!</h2>
+      <p class="text-white-50 mb-0">Book new consignments, track in-flight deliveries, and view your shipment log</p>
+    </div>
+    <a href="/book_parcel" class="btn btn-tp-accent btn-lg fw-bold">
+      <i class="bi bi-plus-circle me-1"></i> Book New Parcel
+    </a>
+  </div>
+</div>
+
+<div class="container py-4 mb-5">
+  <!-- Metric Cards -->
+  <div class="row g-4 mb-5">
+    <div class="col-md-4">
+      <div class="tp-card p-4 border-start border-4 border-primary">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <span class="text-muted small text-uppercase fw-semibold">Total Parcels Sent</span>
+            <div class="fs-2 fw-bold text-dark mt-1">{{ total_parcels }}</div>
+          </div>
+          <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-circle">
+            <i class="bi bi-boxes fs-3"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="tp-card p-4 border-start border-4 border-warning">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <span class="text-muted small text-uppercase fw-semibold">Active & In Transit</span>
+            <div class="fs-2 fw-bold text-warning mt-1">{{ pending_parcels }}</div>
+          </div>
+          <div class="p-3 bg-warning bg-opacity-10 text-warning rounded-circle">
+            <i class="bi bi-truck fs-3"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="tp-card p-4 border-start border-4 border-success">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <span class="text-muted small text-uppercase fw-semibold">Successfully Delivered</span>
+            <div class="fs-2 fw-bold text-success mt-1">{{ delivered_parcels }}</div>
+          </div>
+          <div class="p-3 bg-success bg-opacity-10 text-success rounded-circle">
+            <i class="bi bi-check-circle-fill fs-3"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Shipments Table -->
+  <div class="tp-card p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="fw-bold mb-0 text-dark">
+        <i class="bi bi-clock-history text-primary me-2"></i> Recent Shipments
+      </h5>
+      <a href="/customer_parcels" class="btn btn-outline-primary btn-sm fw-semibold">
+        View All Parcels ({{ total_parcels }})
+      </a>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-modern align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Tracking ID</th>
+            <th>Recipient</th>
+            <th>Route (Source &rarr; Dest)</th>
+            <th>Speed</th>
+            <th>Status</th>
+            <th>Booking Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for parcel in recent_parcels %}
+            <tr>
+              <td>
+                <span class="fw-bold text-primary font-monospace">{{ parcel.tracking_id }}</span>
+                <span class="d-block small text-muted">{{ parcel.parcel_type }}</span>
+              </td>
+              <td>
+                <div class="fw-semibold text-dark">{{ parcel.receiver_name }}</div>
+                <div class="small text-muted"><i class="bi bi-telephone me-1"></i> {{ parcel.receiver_phone }}</div>
+              </td>
+              <td>
+                <div class="small">{{ parcel.source }}</div>
+                <div class="small text-muted">&darr; {{ parcel.destination }}</div>
+              </td>
+              <td>
+                <span class="badge bg-light text-dark border">{{ parcel.delivery_type }}</span>
+              </td>
+              <td>
+                <span class="badge-status badge-{{ parcel.status|slugify|title }}">
+                  {{ parcel.status }}
+                </span>
+              </td>
+              <td>
+                <span class="small text-muted">{{ parcel.booking_date|date:"d M Y" }}</span>
+              </td>
+              <td>
+                <a href="/track_parcel/{{ parcel.id }}" class="btn btn-outline-primary btn-sm fw-semibold">
+                  <i class="bi bi-geo-alt me-1"></i> Track
+                </a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" class="text-center py-5 text-muted">
+                <i class="bi bi-box-seam fs-1 d-block text-secondary mb-2"></i>
+                You haven't booked any parcels yet.
+                <div class="mt-3">
+                  <a href="/book_parcel" class="btn btn-tp-primary btn-sm">Book Your First Parcel</a>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
