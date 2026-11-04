@@ -1,0 +1,165 @@
+{% extends 'commen.html' %}
+{% load static %}
+
+{% block title %}TrackParcel | Book a New Consignment{% endblock %}
+
+{% block content %}
+<div class="tp-header-banner">
+  <div class="container text-center">
+    <h2 class="display-6 fw-bold mb-1">Book a Parcel Consignment</h2>
+    <p class="text-white-50 mb-0">Fill in shipment particulars for guaranteed pickup and expedited transit</p>
+  </div>
+</div>
+
+<div class="container py-4 mb-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      <div class="tp-card p-4 p-md-5">
+        <form method="POST" action="/book_parcel" id="bookParcelForm">
+          {% csrf_token %}
+
+          <!-- Section 1: Sender & Receiver Details -->
+          <div class="row g-4 mb-4">
+            <!-- Sender Card -->
+            <div class="col-md-6">
+              <div class="p-4 rounded-3 border bg-light h-100">
+                <h5 class="fw-bold text-primary mb-3">
+                  <i class="bi bi-box-arrow-up-right me-1"></i> Sender Particulars
+                </h5>
+
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold">Sender Name <span class="text-danger">*</span></label>
+                  <input type="text" name="sender_name" class="form-control" placeholder="Full name of sender" required>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold">Sender Phone <span class="text-danger">*</span></label>
+                  <input type="tel" name="sender_phone" class="form-control" placeholder="+91 98765 43210" required>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold">Origin City / Source Hub <span class="text-danger">*</span></label>
+                  <input type="text" name="source" class="form-control" placeholder="e.g. Mumbai" required>
+                </div>
+
+                <div class="mb-0">
+                  <label class="form-label small fw-semibold">Sender Pickup Address <span class="text-danger">*</span></label>
+                  <textarea name="sender_address" class="form-control" rows="3" placeholder="Door number, street, landmark, pincode" required></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Receiver Card -->
+            <div class="col-md-6">
+              <div class="p-4 rounded-3 border bg-light h-100">
+                <h5 class="fw-bold text-success mb-3">
+                  <i class="bi bi-geo-alt-fill me-1"></i> Recipient Particulars
+                </h5>
+
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold">Recipient Name <span class="text-danger">*</span></label>
+                  <input type="text" name="receiver_name" class="form-control" placeholder="Full name of recipient" required>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold">Recipient Phone <span class="text-danger">*</span></label>
+                  <input type="tel" name="receiver_phone" class="form-control" placeholder="+91 98765 09876" required>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold">Destination City / Drop Hub <span class="text-danger">*</span></label>
+                  <input type="text" name="destination" class="form-control" placeholder="e.g. Bangalore" required>
+                </div>
+
+                <div class="mb-0">
+                  <label class="form-label small fw-semibold">Recipient Delivery Address <span class="text-danger">*</span></label>
+                  <textarea name="receiver_address" class="form-control" rows="3" placeholder="Complete destination address, pincode" required></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2: Consignment Specs -->
+          <div class="p-4 rounded-3 border mb-4 bg-white">
+            <h5 class="fw-bold text-dark mb-3">
+              <i class="bi bi-box-seam me-1 text-warning"></i> Package Specifications & Delivery Mode
+            </h5>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold">Parcel Category <span class="text-danger">*</span></label>
+                <select name="parcel_type" class="form-select" required>
+                  <option value="">Choose category</option>
+                  <option value="Documents & Letters">Documents & Letters</option>
+                  <option value="Electronics & Gadgets">Electronics & Gadgets</option>
+                  <option value="Apparel & Fashion">Apparel & Fashion</option>
+                  <option value="Fragile Items & Gifts">Fragile Items & Gifts</option>
+                  <option value="Healthcare & Medicines">Healthcare & Medicines</option>
+                  <option value="General Merchandise">General Merchandise</option>
+                </select>
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label small fw-semibold">Weight (in kg) <span class="text-danger">*</span></label>
+                <input type="number" step="0.1" min="0.1" name="weight" id="parcelWeight" class="form-control" placeholder="e.g. 1.5" required>
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label small fw-semibold">Distance (in km) <span class="text-danger">*</span></label>
+                <input type="number" step="1" min="1" name="distance_km" id="distanceKm" class="form-control" placeholder="e.g. 450" required>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold">Delivery Type / Speed <span class="text-danger">*</span></label>
+                <select name="delivery_type" id="deliveryTypeSelect" class="form-select" required onchange="updateEstimatedCharge()">
+                  <option value="Standard" selected>Standard Surface Delivery (₹50 Base)</option>
+                  <option value="Express">Express Air Courier (₹100 Base)</option>
+                  <option value="Same Day">Same Day Priority (₹150 Base)</option>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold">Estimated Charge</label>
+                <div class="p-2 bg-light border rounded text-center">
+                  <span class="fs-4 fw-bold text-success" id="estimatedChargeDisplay">₹50</span>
+                  <span class="small text-muted ms-2">(Pay on pickup or cashless)</span>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label small fw-semibold">Parcel Description / Handling Notes</label>
+                <textarea name="parcel_description" class="form-control" rows="2" placeholder="e.g. Handle with care, fragile glass item, deliver between 10am to 5pm"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+            <a href="/customer_home" class="btn btn-outline-secondary fw-semibold">
+              <i class="bi bi-arrow-left me-1"></i> Cancel
+            </a>
+            <button type="submit" class="btn btn-tp-primary btn-lg px-5 fw-bold">
+              <i class="bi bi-check2-circle me-1"></i> Confirm & Book Consignment
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function updateEstimatedCharge() {
+    const type = document.getElementById('deliveryTypeSelect').value;
+    let charge = 50;
+    if (type === 'Express') {
+      charge = 100;
+    } else if (type === 'Same Day') {
+      charge = 150;
+    }
+    document.getElementById('estimatedChargeDisplay').textContent = '₹' + charge;
+  }
+</script>
+{% endblock %}
+
