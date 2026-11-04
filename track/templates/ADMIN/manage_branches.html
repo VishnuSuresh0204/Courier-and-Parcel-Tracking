@@ -1,0 +1,146 @@
+{% extends 'commen.html' %}
+{% load static %}
+
+{% block title %}TrackParcel | Manage Courier Branches{% endblock %}
+
+{% block content %}
+<div class="tp-header-banner">
+  <div class="container d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <div>
+      <span class="badge bg-warning text-dark fw-bold mb-1">NETWORK INFRASTRUCTURE</span>
+      <h2 class="display-6 fw-bold mb-0">Courier Hubs & Branches</h2>
+      <p class="text-white-50 mb-0">Add nationwide sorting centers, transit hubs, and manage operational status</p>
+    </div>
+    <a href="/admin_home" class="btn btn-outline-light btn-sm fw-semibold">
+      <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+    </a>
+  </div>
+</div>
+
+<div class="container py-4 mb-5">
+  <div class="row g-4">
+    <!-- Add Branch Form -->
+    <div class="col-lg-4">
+      <div class="tp-card p-4">
+        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-plus-circle text-primary me-2"></i> Add New Branch</h5>
+        
+        <form method="POST" action="/manage_branches">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Branch Name <span class="text-danger">*</span></label>
+            <input type="text" name="branch_name" class="form-control" placeholder="e.g. Metro Sorting Hub North" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Branch Code <span class="text-danger">*</span></label>
+            <input type="text" name="branch_code" class="form-control text-uppercase" placeholder="e.g. HUB-DEL-01" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Location / City <span class="text-danger">*</span></label>
+            <input type="text" name="location" class="form-control" placeholder="e.g. New Delhi" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Contact Phone <span class="text-danger">*</span></label>
+            <input type="tel" name="phone" class="form-control" placeholder="+91 98765 11111" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Contact Email</label>
+            <input type="email" name="email" class="form-control" placeholder="hub.delhi@trackparcel.com">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Full Physical Address <span class="text-danger">*</span></label>
+            <textarea name="address" class="form-control" rows="3" placeholder="Plot, Street, Sector, Pincode" required></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-tp-primary w-100 py-2 fw-bold">
+            <i class="bi bi-building-add me-1"></i> Register Courier Branch
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Branches List -->
+    <div class="col-lg-8">
+      <div class="tp-card p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold mb-0 text-dark">
+            <i class="bi bi-building text-info me-2"></i> Registered Branches ({{ branches|length }})
+          </h5>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-modern align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Branch Details</th>
+                <th>Code</th>
+                <th>Location</th>
+                <th>Contact</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for branch in branches %}
+                <tr>
+                  <td>
+                    <div class="fw-bold text-dark">{{ branch.branch_name }}</div>
+                    <small class="text-muted d-block text-truncate" style="max-width: 180px;" title="{{ branch.address }}">
+                      {{ branch.address }}
+                    </small>
+                  </td>
+                  <td>
+                    <span class="badge bg-light text-primary border fw-bold">{{ branch.branch_code }}</span>
+                  </td>
+                  <td>
+                    <span class="fw-semibold text-dark">{{ branch.location }}</span>
+                  </td>
+                  <td>
+                    <div class="small"><i class="bi bi-telephone me-1 text-muted"></i> {{ branch.phone }}</div>
+                    {% if branch.email %}
+                      <div class="small text-muted"><i class="bi bi-envelope me-1"></i> {{ branch.email }}</div>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if branch.is_active %}
+                      <span class="badge bg-success">Active</span>
+                    {% else %}
+                      <span class="badge bg-secondary">Inactive</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <form method="POST" action="/toggle_branch_status/{{ branch.id }}">
+                      {% csrf_token %}
+                      {% if branch.is_active %}
+                        <button type="submit" class="btn btn-outline-danger btn-sm" title="Deactivate Branch">
+                          Deactivate
+                        </button>
+                      {% else %}
+                        <button type="submit" class="btn btn-outline-success btn-sm" title="Activate Branch">
+                          Activate
+                        </button>
+                      {% endif %}
+                    </form>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="6" class="text-center py-5 text-muted">
+                    <i class="bi bi-building fs-1 d-block text-secondary mb-2"></i>
+                    No branches configured. Add your first courier branch above.
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
