@@ -2,8 +2,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
-from django.utils import timezone
-from django.db import transaction
 
 from .models import *
 
@@ -58,9 +56,10 @@ def login(request):
                 return redirect('/agent_home')
 
             else:
-                messages.error(request, 'Invalid user type.')
                 auth_logout(request)
                 request.session.flush()
+
+                messages.error(request, 'Invalid user type.')
                 return redirect('/login')
 
         else:
@@ -94,13 +93,15 @@ def customer_registration(request):
         email = request.POST.get('email')
         phone = request.POST.get('phone')
         address = request.POST.get('address')
+
         password = request.POST.get('password')
         confirm_password = request.POST.get('confirm_password')
+
         profile_image = request.FILES.get('profile_image')
 
         if password != confirm_password:
 
-            messages.error(request, 'Passwords do not match.')
+            messages.error(request, 'Password does not match.')
             return redirect('/customer_registration')
 
         if Login.objects.filter(username=username).exists():
@@ -130,7 +131,8 @@ def customer_registration(request):
             profile_image=profile_image
         )
 
-        messages.success(request, 'Customer registration completed.')
+        messages.success(request, 'Registration completed successfully.')
+
         return redirect('/login')
 
     return render(request, 'customer_registration.html')
@@ -162,7 +164,7 @@ def agent_registration(request):
 
         if password != confirm_password:
 
-            messages.error(request, 'Passwords do not match.')
+            messages.error(request, 'Password does not match.')
             return redirect('/agent_registration')
 
         if Login.objects.filter(username=username).exists():
@@ -193,7 +195,7 @@ def agent_registration(request):
 
         except (ValueError, TypeError):
 
-            messages.error(request, 'Invalid experience value.')
+            messages.error(request, 'Invalid experience years.')
             return redirect('/agent_registration')
 
         user = Login.objects.create_user(
@@ -217,7 +219,8 @@ def agent_registration(request):
             profile_image=profile_image
         )
 
-        messages.success(request, 'Delivery agent registration completed.')
+        messages.success(request, 'Delivery agent registered successfully.')
+
         return redirect('/login')
 
     return render(request, 'agent_registration.html')
@@ -236,8 +239,16 @@ def admin_home(request):
         return redirect('/login')
 
     total_customers = CustomerRegistration.objects.count()
+
     total_agents = DeliveryAgentRegistration.objects.count()
+
+    total_branches = CourierBranch.objects.count()
+
     total_parcels = Parcel.objects.count()
+
+    booked_parcels = Parcel.objects.filter(
+        status='Booked'
+    ).count()
 
     delivered_parcels = Parcel.objects.filter(
         status='Delivered'
@@ -260,7 +271,9 @@ def admin_home(request):
     context = {
         'total_customers': total_customers,
         'total_agents': total_agents,
+        'total_branches': total_branches,
         'total_parcels': total_parcels,
+        'booked_parcels': booked_parcels,
         'delivered_parcels': delivered_parcels,
         'pending_parcels': pending_parcels,
         'delayed_parcels': delayed_parcels,
@@ -268,3 +281,767 @@ def admin_home(request):
 
     return render(request, 'ADMIN/home.html', context)
 
+
+# ==========================================
+# 7. CUSTOMER DASHBOARD
+# ==========================================
+
+def customer_home(request):
+
+    if 'userid' not in request.session:
+        return redirect('/login')
+
+    if request.session.get('usertype') != 'Customer':
+        return redirect('/login')
+
+    customer = get_object_or_404(
+        CustomerRegistration,
+        user_id=request.session['userid']
+    )
+
+    total_parcels = Parcel.objects.filter(
+        customer=customer
+    ).count()
+
+    delivered_parcels = Parcel.objects.filter(
+        customer=customer,
+        status='Delivered'
+    ).count()
+
+    pending_parcels = Parcel.objects.filter(
+        customer=customer
+    ).exclude(
+        status__in=['Delivered', 'Cancelled', 'Returned']
+    ).count()
+
+    recent_parcels = Parcel.objects.filter(
+        customer=customer
+    ).order_by('-booking_date')[:5]
+
+    context = {
+        'customer': customer,
+        'total_parcels': total_parcels,
+        'delivered_parcels': delivered_parcels,
+        'pending_parcels': pending_parcels,
+        'recent_parcels': recent_parcels,
+    }
+
+    return render(request, 'CUSTOMER/home.html', context)
+
+
+# ==========================================
+# 8. DELIVERY AGENT DASHBOARD
+# ==========================================
+
+def agent_home(request):
+
+    if 'userid' not in request.session:
+        return redirect('/login')
+
+    if request.session.get('usertype') != 'Delivery Agent':
+        return redirect('/login')
+
+    agent = get_object_or_404(
+        DeliveryAgentRegistration,
+        user_id=request.session['userid']
+    )
+
+    context = {
+        'agent': agent,
+        'total_parcels': Parcel.objects.filter(
+            status__in=['Picked Up', 'In Transit', 'At Branch', 'Out for Delivery']
+        ).count(),
+        'available_agents': DeliveryAgentRegistration.objects.filter(
+            is_available=True,
+            user__is_active=True
+        ).count(),
+    }
+
+    return render(request, 'AGENT/home.html', context)
+
+
+# ==========================================
+# 9. CUSTOMER PROFILE
+# ==========================================
+
+def customer_profile(request):
+
+    if 'userid' not in request.session:
+        return redirect('/login')
+
+    if request.session.get('usertype') != 'Customer':
+        return redirect('/login')
+
+    customer = get_object_or_404(
+        CustomerRegistration,
+        user_id=request.session['userid']
+    )
+
+    if request.method == 'POST':
+
+        customer.name = request.POST.get('name')
+        customer.email = request.POST.get('email')
+        customer.phone = request.POST.get('phone')
+        customer.address = request.POST.get('address')
+
+        if request.FILES.get('profile_image'):
+            customer.profile_image = request.FILES.get('profile_image')
+
+        customer.save()
+
+        customer.user.email = customer.email
+        customer.user.save(update_fields=['email'])
+
+        messages.success(request, 'Profile updated successfully.')
+
+        return redirect('/customer_profile')
+
+    return render(
+        request,
+        'CUSTOMER/profile.html',
+        {'customer': customer}
+    )
+
+
+# ==========================================
+# 10. DELIVERY AGENT PROFILE
+# ==========================================
+
+def agent_profile(request):
+
+    if 'userid' not in request.session:
+        return redirect('/login')
+
+    if request.session.get('usertype') != 'Delivery Agent':
+        return redirect('/login')
+
+    agent = get_object_or_404(
+        DeliveryAgentRegistration,
+        user_id=request.session['userid']
+    )
+
+    if request.method == 'POST':
+
+        agent.name = request.POST.get('name')
+        agent.email = request.POST.get('email')
+        agent.phone = request.POST.get('phone')
+        agent.address = request.POST.get('address')
+
+        agent.vehicle_number = request.POST.get('vehicle_number')
+        agent.vehicle_type = request.POST.get('vehicle_type')
+
+        if request.FILES.get('profile_image'):
+            agent.profile_image = request.FILES.get('profile_image')
+
+        agent.save()
+
+        agent.user.email = agent.email
+        agent.user.save(update_fields=['email'])
+
+        messages.success(request, 'Profile updated successfully.')
+
+        return redirect('/agent_profile')
+
+    return render(
+        request,
+        'AGENT/profile.html',
+        {'agent': agent}
+    )
+
+
+# ==========================================
+# 11. VIEW CUSTOMERS - ADMIN
+# ==========================================
+
+def view_customers(request):
+
+    if 'userid' not in request.session:
+        return redirect('/login')
+
+    if request.session.get('usertype') != 'Admin':
+        return redirect('/login')
+
+    customers = CustomerRegistration.objects.select_related(
+        'user'
+    ).order_by('-created_at')
+
+    return render(
+        request,
+        'ADMIN/view_customers.html',
+        {'customers': customers}
+    )
+
+
+# ==========================================
+# 12. VIEW DELIVERY AGENTS - ADMIN
+# ==========================================
+
+def view_agents(request):
+
+    if 'userid' not in request.session:
+        return redirect('/login')
+
+    if request.session.get('usertype') != 'Admin':
+        return redirect('/login')
+
+    agents = DeliveryAgentRegistration.objects.select_related(
+        'user'
+    ).order_by('-created_at')
+
+    return render(
+        request,
+        'ADMIN/view_agents.html',
+        {'agents': agents}
+    )
+
+
+# ==========================================
+# 13. MANAGE BRANCHES - ADMIN
+# ==========================================
+
+def manage_branches(request):
+
+    if 'userid' not in request.session:
+        return redirect('/login')
+
+    if request.session.get('usertype') != 'Admin':
+        return redirect('/login')
+
+    if request.method == 'POST':
+
+        branch_name = request.POST.get('branch_name')
+        branch_code = request.POST.get('branch_code')
+        location = request.POST.get('location')
+        address = request.POST.get('address')
+        phone = request.POST.get('phone')
+        email = request.POST.get('email')
+
+        if not all([
+            branch_name, branch_code,
+            location, address, phone
+        ]):
+
+            messages.error(request, 'Please fill all required fields.')
+            return redirect('/manage_branches')
+
+        if CourierBranch.objects.filter(
+            branch_code=branch_code
+        ).exists():
+
+            messages.error(request, 'Branch code already exists.')
+            return redirect('/manage_branches')
+
+        CourierBranch.objects.create(
+            branch_name=branch_name,
+            branch_code=branch_code,
+            location=location,
+            address=address,
+            phone=phone,
+            email=email
+        )
+
+        messages.success(request, 'Branch added successfully.')
+
+        return redirect('/manage_branches')
+
+    branches = CourierBranch.objects.all().order_by('-created_at')
+
+    return render(
+        request,
+        'ADMIN/manage_branches.html',
+        {'branches': branches}
+    )
+
+
+# ==========================================
+# 14. TOGGLE BRANCH STATUS - ADMIN
+# ==========================================
+
+def toggle_branch_status(request, branch_id):
+
+    if 'userid' not in request.session:
+        return redirect('/login')
+
+    if request.session.get('usertype') != 'Admin':
+        return redirect('/login')
+
+    branch = get_object_or_404(
+        CourierBranch,
+        id=branch_id
+    )
+
+    if request.method == 'POST':
+
+        branch.is_active = not branch.is_active
+        branch.save(update_fields=['is_active'])
+
+        messages.success(request, 'Branch status updated.')
+
+    return redirect('/manage_branches')
+
+
+# ==========================================
+# 15. TOGGLE AGENT STATUS - ADMIN
+# ==========================================
+
+def toggle_agent_status(request, agent_id):
+
+    if 'userid' not in request.session:
+        return redirect('/login')
+
+    if request.session.get('usertype') != 'Admin':
+        return redirect('/login')
+
+    agent = get_object_or_404(
+        DeliveryAgentRegistration,
+        id=agent_id
+    )
+
+    if request.method == 'POST':
+
+        agent.user.is_active = not agent.user.is_active
+        agent.user.save(update_fields=['is_active'])
+
+        messages.success(request, 'Agent account status updated.')
+
+    return redirect('/view_agents')
+
+
+# ==========================================
+# 16. VIEW ALL PARCELS - ADMIN
+# ==========================================
+
+def view_all_parcels(request):
+
+    if 'userid' not in request.session:
+        return redirect('/login')
+
+    if request.session.get('usertype') != 'Admin':
+        return redirect('/login')
+
+    parcels = Parcel.objects.select_related(
+        'customer',
+        'current_branch'
+    ).order_by('-booking_date')
+
+    return render(
+        request,
+        'ADMIN/view_parcels.html',
+        {'parcels': parcels}
+    )
+
+
+# ==========================================
+# 17. ADMIN PARCEL DETAILS
+# ==========================================
+
+def admin_parcel_detail(request, parcel_id):
+
+    if 'userid' not in request.session:
+        return redirect('/login')
+
+    if request.session.get('usertype') != 'Admin':
+        return redirect('/login')
+
+    parcel = get_object_or_404(
+        Parcel.objects.select_related(
+            'customer',
+            'current_branch'
+        ),
+        id=parcel_id
+    )
+
+    return render(
+        request,
+        'ADMIN/parcel_detail.html',
+        {'parcel': parcel}
+    )
+
+
+# ==========================================
+# 18. CANCEL PARCEL - ADMIN
+# ==========================================
+
+def cancel_parcel(request, parcel_id):
+
+    if 'userid' not in request.session:
+        return redirect('/login')
+
+    if request.session.get('usertype') != 'Admin':
+        return redirect('/login')
+
+    parcel = get_object_or_404(
+        Parcel,
+        id=parcel_id
+    )
+
+    if request.method == 'POST':
+
+        if parcel.status == 'Delivered':
+
+            messages.error(request, 'Delivered parcel cannot be cancelled.')
+
+        else:
+
+            parcel.status = 'Cancelled'
+            parcel.save(update_fields=['status'])
+
+            messages.success(request, 'Parcel cancelled successfully.')
+
+    return redirect('/admin_parcel_detail/' + str(parcel.id))
+
+
+# ==========================================
+# 19. BOOK PARCEL - CUSTOMER
+# ==========================================
+
+def book_parcel(request):
+
+    if 'userid' not in request.session:
+        return redirect('/login')
+
+    if request.session.get('usertype') != 'Customer':
+        return redirect('/login')
+
+    customer = get_object_or_404(
+        CustomerRegistration,
+        user_id=request.session['userid']
+    )
+
+    if request.method == 'POST':
+
+        sender_name = request.POST.get('sender_name')
+        sender_phone = request.POST.get('sender_phone')
+        sender_address = request.POST.get('sender_address')
+
+        receiver_name = request.POST.get('receiver_name')
+        receiver_phone = request.POST.get('receiver_phone')
+        receiver_address = request.POST.get('receiver_address')
+
+        source = request.POST.get('source')
+        destination = request.POST.get('destination')
+
+        parcel_type = request.POST.get('parcel_type')
+        parcel_description = request.POST.get('parcel_description')
+
+        weight = request.POST.get('weight')
+        distance_km = request.POST.get('distance_km')
+        delivery_type = request.POST.get('delivery_type')
+
+        if not all([
+            sender_name, sender_phone, sender_address,
+            receiver_name, receiver_phone, receiver_address,
+            source, destination, parcel_type,
+            weight, distance_km, delivery_type
+        ]):
+
+            messages.error(request, 'Please fill all required fields.')
+            return redirect('/book_parcel')
+
+        try:
+
+            weight = float(weight)
+            distance_km = float(distance_km)
+
+            if weight <= 0 or distance_km <= 0:
+                raise ValueError
+
+        except (ValueError, TypeError):
+
+            messages.error(request, 'Enter valid weight and distance.')
+            return redirect('/book_parcel')
+
+        delivery_charges = {
+            'Standard': 50,
+            'Express': 100,
+            'Same Day': 150
+        }
+
+        if delivery_type not in delivery_charges:
+
+            messages.error(request, 'Invalid delivery type.')
+            return redirect('/book_parcel')
+
+        parcel = Parcel.objects.create(
+            customer=customer,
+            sender_name=sender_name,
+            sender_phone=sender_phone,
+            sender_address=sender_address,
+            receiver_name=receiver_name,
+            receiver_phone=receiver_phone,
+            receiver_address=receiver_address,
+            source=source,
+            destination=destination,
+            parcel_type=parcel_type,
+            parcel_description=parcel_description,
+            weight=weight,
+            distance_km=distance_km,
+            delivery_type=delivery_type,
+            delivery_charge=delivery_charges[delivery_type],
+            status='Booked'
+        )
+
+        messages.success(
+            request,
+            'Parcel booked successfully. Tracking ID: ' + parcel.tracking_id
+        )
+
+        return redirect('/customer_parcels')
+
+    return render(request, 'CUSTOMER/book_parcel.html')
+
+
+# ==========================================
+# 20. CUSTOMER PARCEL LIST
+# ==========================================
+
+def customer_parcels(request):
+
+    if 'userid' not in request.session:
+        return redirect('/login')
+
+    if request.session.get('usertype') != 'Customer':
+        return redirect('/login')
+
+    customer = get_object_or_404(
+        CustomerRegistration,
+        user_id=request.session['userid']
+    )
+
+    parcels = Parcel.objects.filter(
+        customer=customer
+    ).order_by('-booking_date')
+
+    return render(
+        request,
+        'CUSTOMER/parcels.html',
+        {'parcels': parcels}
+    )
+
+
+# ==========================================
+# 21. CUSTOMER TRACK PARCEL
+# ==========================================
+
+def track_parcel(request, parcel_id):
+
+    if 'userid' not in request.session:
+        return redirect('/login')
+
+    if request.session.get('usertype') != 'Customer':
+        return redirect('/login')
+
+    customer = get_object_or_404(
+        CustomerRegistration,
+        user_id=request.session['userid']
+    )
+
+    parcel = get_object_or_404(
+        Parcel,
+        id=parcel_id,
+        customer=customer
+    )
+
+    return render(
+        request,
+        'CUSTOMER/track_parcel.html',
+        {'parcel': parcel}
+    )
+
+
+# ==========================================
+# 22. PUBLIC TRACK PARCEL
+# ==========================================
+
+def public_track_parcel(request):
+
+    parcel = None
+
+    if request.method == 'POST':
+
+        tracking_id = request.POST.get(
+            'tracking_id',
+            ''
+        ).strip().upper()
+
+        if tracking_id:
+
+            try:
+
+                parcel = Parcel.objects.get(
+                    tracking_id=tracking_id
+                )
+
+            except Parcel.DoesNotExist:
+
+                messages.error(request, 'Invalid tracking ID.')
+
+        else:
+
+            messages.error(request, 'Please enter a tracking ID.')
+
+    return render(
+        request,
+        'track_parcel.html',
+        {'parcel': parcel}
+    )
+
+
+# ==========================================
+# 23. CUSTOMER CANCEL PARCEL
+# ==========================================
+
+def customer_cancel_parcel(request, parcel_id):
+
+    if 'userid' not in request.session:
+        return redirect('/login')
+
+    if request.session.get('usertype') != 'Customer':
+        return redirect('/login')
+
+    customer = get_object_or_404(
+        CustomerRegistration,
+        user_id=request.session['userid']
+    )
+
+    parcel = get_object_or_404(
+        Parcel,
+        id=parcel_id,
+        customer=customer
+    )
+
+    if request.method == 'POST':
+
+        if parcel.status != 'Booked':
+
+            messages.error(
+                request,
+                'Only booked parcels can be cancelled.'
+            )
+
+        else:
+
+            parcel.status = 'Cancelled'
+            parcel.save(update_fields=['status'])
+
+            messages.success(request, 'Parcel cancelled successfully.')
+
+    return redirect('/customer_parcels')
+
+
+# ==========================================
+# 24. UPDATE PARCEL STATUS - ADMIN
+# ==========================================
+
+def update_parcel_status(request, parcel_id):
+
+    if 'userid' not in request.session:
+        return redirect('/login')
+
+    if request.session.get('usertype') != 'Admin':
+        return redirect('/login')
+
+    parcel = get_object_or_404(
+        Parcel,
+        id=parcel_id
+    )
+
+    if request.method == 'POST':
+
+        status = request.POST.get('status')
+
+        valid_statuses = [
+            'Booked',
+            'Picked Up',
+            'In Transit',
+            'At Branch',
+            'Out for Delivery',
+            'Delivered',
+            'Delayed',
+            'Cancelled',
+            'Returned'
+        ]
+
+        if status not in valid_statuses:
+
+            messages.error(request, 'Invalid parcel status.')
+
+        else:
+
+            parcel.status = status
+            parcel.save(update_fields=['status'])
+
+            messages.success(request, 'Parcel status updated successfully.')
+
+    return redirect('/admin_parcel_detail/' + str(parcel.id))
+
+
+# ==========================================
+# 25. UPDATE CURRENT BRANCH - ADMIN
+# ==========================================
+
+def update_parcel_branch(request, parcel_id):
+
+    if 'userid' not in request.session:
+        return redirect('/login')
+
+    if request.session.get('usertype') != 'Admin':
+        return redirect('/login')
+
+    parcel = get_object_or_404(
+        Parcel,
+        id=parcel_id
+    )
+
+    if request.method == 'POST':
+
+        branch_id = request.POST.get('branch_id')
+
+        if branch_id:
+
+            branch = get_object_or_404(
+                CourierBranch,
+                id=branch_id,
+                is_active=True
+            )
+
+            parcel.current_branch = branch
+            parcel.save(update_fields=['current_branch'])
+
+            messages.success(request, 'Parcel branch updated.')
+
+        else:
+
+            parcel.current_branch = None
+            parcel.save(update_fields=['current_branch'])
+
+            messages.success(request, 'Parcel branch removed.')
+
+    return redirect('/admin_parcel_detail/' + str(parcel.id))
+
+
+# ==========================================
+# 26. TOGGLE DELIVERY AGENT AVAILABILITY
+# ==========================================
+
+def toggle_agent_availability(request):
+
+    if 'userid' not in request.session:
+        return redirect('/login')
+
+    if request.session.get('usertype') != 'Delivery Agent':
+        return redirect('/login')
+
+    agent = get_object_or_404(
+        DeliveryAgentRegistration,
+        user_id=request.session['userid']
+    )
+
+    if request.method == 'POST':
+
+        agent.is_available = not agent.is_available
+        agent.save(update_fields=['is_available'])
+
+        messages.success(request, 'Availability updated successfully.')
+
+    return redirect('/agent_home')
