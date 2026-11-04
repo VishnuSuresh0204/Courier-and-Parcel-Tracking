@@ -201,3 +201,139 @@ class Parcel(models.Model):
 
     def __str__(self):
         return self.tracking_id
+
+
+# ==========================================
+# 6. DELIVERY ASSIGNMENT
+# ==========================================
+
+class DeliveryAssignment(models.Model):
+
+    ASSIGNMENT_STATUS = [
+        ('Assigned', 'Assigned'),
+        ('In Progress', 'In Progress'),
+        ('Completed', 'Completed'),
+        ('Cancelled', 'Cancelled'),
+    ]
+
+    parcel = models.ForeignKey(
+        Parcel,
+        on_delete=models.CASCADE,
+        related_name='assignments'
+    )
+
+    delivery_agent = models.ForeignKey(
+        DeliveryAgentRegistration,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='assignments'
+    )
+
+    assigned_by = models.ForeignKey(
+        Login,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='created_assignments'
+    )
+
+    assignment_status = models.CharField(
+        max_length=30,
+        choices=ASSIGNMENT_STATUS,
+        default='Assigned'
+    )
+
+    assigned_at = models.DateTimeField(auto_now_add=True)
+
+    completed_at = models.DateTimeField(
+        null=True,
+        blank=True
+    )
+
+    remarks = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.parcel.tracking_id
+
+
+# ==========================================
+# 7. PARCEL TRACKING HISTORY
+# ==========================================
+
+class ParcelTrackingHistory(models.Model):
+
+    parcel = models.ForeignKey(
+        Parcel,
+        on_delete=models.CASCADE,
+        related_name='tracking_history'
+    )
+
+    status = models.CharField(max_length=30)
+
+    location = models.CharField(max_length=200)
+
+    description = models.TextField()
+
+    updated_by = models.ForeignKey(
+        Login,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+
+    updated_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.parcel.tracking_id + ' - ' + self.status
+
+
+# ==========================================
+# 8. DELIVERY RECORD
+# ==========================================
+
+class DeliveryRecord(models.Model):
+
+    DELIVERY_STATUS = [
+        ('Delivered', 'Delivered'),
+        ('Failed', 'Failed'),
+    ]
+
+    parcel = models.OneToOneField(
+        Parcel,
+        on_delete=models.CASCADE,
+        related_name='delivery_record'
+    )
+
+    delivery_agent = models.ForeignKey(
+        DeliveryAgentRegistration,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+
+    receiver_name = models.CharField(max_length=100)
+    receiver_phone = models.CharField(max_length=15)
+
+    delivery_status = models.CharField(
+        max_length=30,
+        choices=DELIVERY_STATUS,
+        default='Delivered'
+    )
+
+    delivery_proof = models.ImageField(
+        upload_to='delivery_proofs/',
+        null=True,
+        blank=True
+    )
+
+    delivery_remarks = models.TextField(blank=True)
+
+    delivery_date = models.DateTimeField(
+        null=True,
+        blank=True
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.parcel.tracking_id
