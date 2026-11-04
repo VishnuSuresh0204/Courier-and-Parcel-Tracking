@@ -1,0 +1,186 @@
+{% extends 'commen.html' %}
+{% load static %}
+
+{% block title %}TrackParcel | Admin Operations Console{% endblock %}
+
+{% block extra_css %}
+<style>
+  .admin-metric-card {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid var(--tp-border);
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .admin-metric-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+  }
+
+  .metric-icon-bg {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    font-size: 3rem;
+    opacity: 0.12;
+  }
+
+  .metric-value {
+    font-size: 2.3rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="tp-header-banner">
+  <div class="container d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <div>
+      <span class="badge bg-warning text-dark fw-bold mb-1">OPERATIONS CONTROL CENTER</span>
+      <h2 class="display-6 fw-bold mb-0">System Admin Dashboard</h2>
+      <p class="text-white-50 mb-0">Overview of nationwide courier metrics, fleet, and consignment traffic</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="/view_all_parcels" class="btn btn-outline-light btn-sm fw-semibold">
+        <i class="bi bi-box-seam me-1"></i> All Parcels
+      </a>
+      <a href="/manage_branches" class="btn btn-tp-accent btn-sm fw-semibold">
+        <i class="bi bi-building me-1"></i> Hub Branches
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="container py-4 mb-5">
+  <!-- Core Metrics Grid -->
+  <div class="row g-4 mb-4">
+    <!-- Total Parcels -->
+    <div class="col-sm-6 col-lg-3">
+      <div class="admin-metric-card">
+        <span class="text-muted small text-uppercase fw-semibold">Total Consignments</span>
+        <div class="metric-value text-primary">{{ total_parcels }}</div>
+        <div class="small text-muted"><i class="bi bi-arrow-up-right text-success me-1"></i> System Lifetime</div>
+        <i class="bi bi-boxes metric-icon-bg text-primary"></i>
+      </div>
+    </div>
+
+    <!-- Active Branches -->
+    <div class="col-sm-6 col-lg-3">
+      <div class="admin-metric-card">
+        <span class="text-muted small text-uppercase fw-semibold">Branch Network</span>
+        <div class="metric-value text-info">{{ total_branches }}</div>
+        <div class="small text-muted"><i class="bi bi-geo-alt text-info me-1"></i> Active Hub Locations</div>
+        <i class="bi bi-building metric-icon-bg text-info"></i>
+      </div>
+    </div>
+
+    <!-- Delivery Agents -->
+    <div class="col-sm-6 col-lg-3">
+      <div class="admin-metric-card">
+        <span class="text-muted small text-uppercase fw-semibold">Delivery Fleet</span>
+        <div class="metric-value text-success">{{ total_agents }}</div>
+        <div class="small text-muted"><i class="bi bi-bicycle text-success me-1"></i> Registered Couriers</div>
+        <i class="bi bi-people-fill metric-icon-bg text-success"></i>
+      </div>
+    </div>
+
+    <!-- Registered Customers -->
+    <div class="col-sm-6 col-lg-3">
+      <div class="admin-metric-card">
+        <span class="text-muted small text-uppercase fw-semibold">Customer Base</span>
+        <div class="metric-value text-warning">{{ total_customers }}</div>
+        <div class="small text-muted"><i class="bi bi-person-check text-warning me-1"></i> Verified Users</div>
+        <i class="bi bi-person-badge metric-icon-bg text-warning"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Parcel Status Distribution Cards -->
+  <h5 class="fw-bold text-dark mb-3"><i class="bi bi-speedometer2 text-primary me-2"></i> Real-Time Parcel Pipeline</h5>
+  <div class="row g-4 mb-5">
+    <div class="col-6 col-md-3">
+      <div class="tp-card p-3 border-start border-4 border-warning">
+        <span class="text-muted small text-uppercase fw-semibold">New Bookings</span>
+        <div class="fs-2 fw-bold text-dark mt-1">{{ booked_parcels }}</div>
+        <div class="small text-muted">Awaiting Pickup</div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-3">
+      <div class="tp-card p-3 border-start border-4 border-primary">
+        <span class="text-muted small text-uppercase fw-semibold">In Transit / Active</span>
+        <div class="fs-2 fw-bold text-primary mt-1">{{ pending_parcels }}</div>
+        <div class="small text-muted">Moving Across Hubs</div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-3">
+      <div class="tp-card p-3 border-start border-4 border-success">
+        <span class="text-muted small text-uppercase fw-semibold">Delivered</span>
+        <div class="fs-2 fw-bold text-success mt-1">{{ delivered_parcels }}</div>
+        <div class="small text-muted">Successfully Completed</div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-3">
+      <div class="tp-card p-3 border-start border-4 border-danger">
+        <span class="text-muted small text-uppercase fw-semibold">Delayed</span>
+        <div class="fs-2 fw-bold text-danger mt-1">{{ delayed_parcels }}</div>
+        <div class="small text-muted">Requires Attention</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Operational Quick Actions -->
+  <div class="tp-card p-4 p-md-5">
+    <h5 class="fw-bold text-dark mb-3">Quick Operations Navigator</h5>
+    <div class="row g-3">
+      <div class="col-md-3">
+        <a href="/view_all_parcels" class="btn btn-outline-primary w-100 py-3 text-start d-flex align-items-center gap-3">
+          <i class="bi bi-box-seam fs-3"></i>
+          <div>
+            <div class="fw-bold">Inspect Shipments</div>
+            <small class="text-muted">Manage all parcels & status</small>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-3">
+        <a href="/manage_branches" class="btn btn-outline-secondary w-100 py-3 text-start d-flex align-items-center gap-3">
+          <i class="bi bi-building-add fs-3 text-info"></i>
+          <div>
+            <div class="fw-bold">Manage Branches</div>
+            <small class="text-muted">Add & toggle hub status</small>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-3">
+        <a href="/view_agents" class="btn btn-outline-success w-100 py-3 text-start d-flex align-items-center gap-3">
+          <i class="bi bi-bicycle fs-3 text-success"></i>
+          <div>
+            <div class="fw-bold">Delivery Agents</div>
+            <small class="text-muted">Roster & account status</small>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-3">
+        <a href="/view_customers" class="btn btn-outline-warning w-100 py-3 text-start d-flex align-items-center gap-3">
+          <i class="bi bi-people fs-3 text-warning"></i>
+          <div>
+            <div class="fw-bold">Customer Accounts</div>
+            <small class="text-muted">Customer profiles & history</small>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
