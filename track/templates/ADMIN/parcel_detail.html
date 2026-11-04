@@ -1,0 +1,189 @@
+{% extends 'commen.html' %}
+{% load static %}
+
+{% block title %}TrackParcel | Admin Parcel Detail - {{ parcel.tracking_id }}{% endblock %}
+
+{% block content %}
+<div class="tp-header-banner">
+  <div class="container d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <div>
+      <span class="badge bg-warning text-dark fw-bold mb-1">CONSIGNMENT DISPATCH MANAGER</span>
+      <h2 class="display-6 fw-bold mb-0">Consignment #{{ parcel.tracking_id }}</h2>
+      <p class="text-white-50 mb-0">Update transit status, assign physical sorting branches, or handle cancellation</p>
+    </div>
+    <a href="/view_all_parcels" class="btn btn-outline-light btn-sm fw-semibold">
+      <i class="bi bi-arrow-left me-1"></i> Back to Parcels
+    </a>
+  </div>
+</div>
+
+<div class="container py-4 mb-5">
+  <div class="row g-4">
+    <!-- Left Column: Parcel Details -->
+    <div class="col-lg-7">
+      <div class="tp-card p-4 p-md-5 mb-4">
+        <div class="d-flex justify-content-between align-items-center pb-3 border-bottom mb-4">
+          <div>
+            <span class="text-muted small text-uppercase fw-semibold">Current State</span>
+            <div class="mt-1">
+              <span class="badge-status badge-{{ parcel.status|slugify|title }} fs-6 px-3 py-2">
+                {{ parcel.status }}
+              </span>
+            </div>
+          </div>
+          <div class="text-end">
+            <span class="text-muted small text-uppercase fw-semibold">Booking Date</span>
+            <div class="fw-bold text-dark">{{ parcel.booking_date|date:"d M Y, h:i A" }}</div>
+          </div>
+        </div>
+
+        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-geo-alt text-primary me-2"></i> Route & Destination</h5>
+        <div class="row g-3 mb-4">
+          <div class="col-6">
+            <div class="p-3 bg-light rounded-3">
+              <div class="small text-muted">Origin (Source)</div>
+              <div class="fw-bold fs-5 text-dark">{{ parcel.source }}</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="p-3 bg-light rounded-3">
+              <div class="small text-muted">Destination</div>
+              <div class="fw-bold fs-5 text-dark">{{ parcel.destination }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sender / Receiver Details -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <div class="p-3 border rounded-3 h-100">
+              <h6 class="fw-bold text-muted text-uppercase small mb-2"><i class="bi bi-person me-1"></i> Sender Info</h6>
+              <div class="fw-bold text-dark">{{ parcel.sender_name }}</div>
+              <div class="small text-muted"><i class="bi bi-telephone me-1"></i> {{ parcel.sender_phone }}</div>
+              <div class="small text-secondary mt-1">{{ parcel.sender_address }}</div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="p-3 border rounded-3 h-100">
+              <h6 class="fw-bold text-muted text-uppercase small mb-2"><i class="bi bi-person-check me-1"></i> Recipient Info</h6>
+              <div class="fw-bold text-dark">{{ parcel.receiver_name }}</div>
+              <div class="small text-muted"><i class="bi bi-telephone me-1"></i> {{ parcel.receiver_phone }}</div>
+              <div class="small text-secondary mt-1">{{ parcel.receiver_address }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Package Specs -->
+        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-box-seam text-primary me-2"></i> Package Specifications</h5>
+        <div class="table-responsive">
+          <table class="table table-bordered small mb-0">
+            <tbody>
+              <tr>
+                <th class="bg-light w-50">Parcel Type</th>
+                <td>{{ parcel.parcel_type }}</td>
+              </tr>
+              <tr>
+                <th class="bg-light">Gross Weight</th>
+                <td>{{ parcel.weight }} kg</td>
+              </tr>
+              <tr>
+                <th class="bg-light">Distance</th>
+                <td>{{ parcel.distance_km }} km</td>
+              </tr>
+              <tr>
+                <th class="bg-light">Delivery Type</th>
+                <td><span class="badge bg-primary">{{ parcel.delivery_type }}</span></td>
+              </tr>
+              <tr>
+                <th class="bg-light">Delivery Charge</th>
+                <td class="fw-bold text-success">₹{{ parcel.delivery_charge }}</td>
+              </tr>
+              <tr>
+                <th class="bg-light">Current Branch Hub</th>
+                <td>
+                  {% if parcel.current_branch %}
+                    <span class="fw-bold text-primary">{{ parcel.current_branch.branch_name }}</span> ({{ parcel.current_branch.location }})
+                  {% else %}
+                    <span class="text-muted">Not assigned to specific branch</span>
+                  {% endif %}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {% if parcel.parcel_description %}
+          <div class="mt-4 p-3 bg-light rounded-3 small">
+            <strong>Notes / Instructions:</strong> {{ parcel.parcel_description }}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Right Column: Operations Actions -->
+    <div class="col-lg-5">
+      <!-- 1. Update Status Form -->
+      <div class="tp-card p-4 mb-4">
+        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-arrow-repeat text-primary me-2"></i> Update Parcel Status</h5>
+        <form method="POST" action="/update_parcel_status/{{ parcel.id }}">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Select Status Milestone</label>
+            <select name="status" class="form-select" required>
+              <option value="Booked" {% if parcel.status == 'Booked' %}selected{% endif %}>Booked</option>
+              <option value="Picked Up" {% if parcel.status == 'Picked Up' %}selected{% endif %}>Picked Up</option>
+              <option value="In Transit" {% if parcel.status == 'In Transit' %}selected{% endif %}>In Transit</option>
+              <option value="At Branch" {% if parcel.status == 'At Branch' %}selected{% endif %}>At Branch</option>
+              <option value="Out for Delivery" {% if parcel.status == 'Out for Delivery' %}selected{% endif %}>Out for Delivery</option>
+              <option value="Delivered" {% if parcel.status == 'Delivered' %}selected{% endif %}>Delivered</option>
+              <option value="Delayed" {% if parcel.status == 'Delayed' %}selected{% endif %}>Delayed</option>
+              <option value="Cancelled" {% if parcel.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+              <option value="Returned" {% if parcel.status == 'Returned' %}selected{% endif %}>Returned</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-tp-primary w-100 fw-bold">
+            <i class="bi bi-check2-circle me-1"></i> Save Status Change
+          </button>
+        </form>
+      </div>
+
+      <!-- 2. Assign / Update Current Branch Hub -->
+      <div class="tp-card p-4 mb-4">
+        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-building text-info me-2"></i> Assign Current Hub</h5>
+        <form method="POST" action="/update_parcel_branch/{{ parcel.id }}">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Transit Branch Hub</label>
+            <select name="branch_id" class="form-select">
+              <option value="">-- Remove / Central Sorting Transit --</option>
+              {% for b in branches %}
+                <option value="{{ b.id }}" {% if parcel.current_branch and parcel.current_branch.id == b.id %}selected{% endif %}>
+                  {{ b.branch_name }} ({{ b.location }}) - {{ b.branch_code }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn btn-outline-info text-dark w-100 fw-bold">
+            <i class="bi bi-geo-alt-fill text-info me-1"></i> Update Branch Location
+          </button>
+        </form>
+      </div>
+
+      <!-- 3. Cancel Parcel Option -->
+      {% if parcel.status != 'Delivered' and parcel.status != 'Cancelled' %}
+        <div class="tp-card p-4 border-danger border-opacity-25 bg-danger bg-opacity-10">
+          <h6 class="fw-bold text-danger mb-2"><i class="bi bi-x-octagon-fill me-1"></i> Emergency Parcel Cancellation</h6>
+          <p class="small text-secondary mb-3">If this consignment was flagged or requested for recall by the sender, mark it cancelled.</p>
+          <form method="POST" action="/cancel_parcel/{{ parcel.id }}" onsubmit="return confirm('Are you sure you want to cancel this consignment?');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger w-100 fw-bold">
+              <i class="bi bi-x-circle me-1"></i> Cancel Consignment
+            </button>
+          </form>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
