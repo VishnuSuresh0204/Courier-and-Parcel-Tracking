@@ -1,0 +1,109 @@
+{% extends 'commen.html' %}
+{% load static %}
+
+{% block title %}TrackParcel | Customer Registration{% endblock %}
+
+{% block content %}
+<div class="tp-header-banner">
+  <div class="container text-center">
+    <h2 class="display-6 fw-bold mb-1">Customer Registration</h2>
+    <p class="text-white-50 mb-0">Create an account to book and track your personal and business shipments</p>
+  </div>
+</div>
+
+<div class="container py-4 mb-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="tp-card p-4 p-md-5">
+        <div class="d-flex align-items-center gap-3 pb-3 mb-4 border-bottom">
+          <div class="tp-brand-icon" style="width: 48px; height: 48px; font-size: 1.4rem;">
+            <i class="bi bi-person-fill"></i>
+          </div>
+          <div>
+            <h4 class="fw-bold mb-0">Create Customer Profile</h4>
+            <p class="text-muted small mb-0">Fill in the details below to complete your registration</p>
+          </div>
+        </div>
+
+        <form method="POST" action="/customer_registration" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold text-dark">Full Name <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                <input type="text" name="name" class="form-control" placeholder="e.g. John Doe" required>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold text-dark">Username <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-at"></i></span>
+                <input type="text" name="username" class="form-control" placeholder="Unique username" required>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold text-dark">Email Address <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                <input type="email" name="email" class="form-control" placeholder="name@example.com" required>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold text-dark">Phone Number <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                <input type="tel" name="phone" class="form-control" placeholder="+91 98765 43210" required>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label small fw-semibold text-dark">Default Pickup Address <span class="text-danger">*</span></label>
+              <textarea name="address" class="form-control" rows="3" placeholder="Enter your full street address, city, pincode" required></textarea>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold text-dark">Profile Image</label>
+              <input type="file" name="profile_image" class="form-control" accept="image/*">
+            </div>
+
+            <div class="col-md-6">
+              <!-- Empty spacer or note -->
+              <div class="p-2 mt-4 bg-light rounded text-muted small">
+                <i class="bi bi-info-circle me-1 text-primary"></i> Optional profile avatar (JPG, PNG)
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold text-dark">Password <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                <input type="password" name="password" class="form-control" placeholder="Create password" required>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold text-dark">Confirm Password <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-shield-lock"></i></span>
+                <input type="password" name="confirm_password" class="form-control" placeholder="Re-enter password" required>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center">
+            <span class="small text-muted">Already registered? <a href="/login" class="fw-semibold text-primary">Sign In</a></span>
+            <button type="submit" class="btn btn-tp-primary px-4 py-2 fw-bold">
+              <i class="bi bi-check2-circle me-1"></i> Register as Customer
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
