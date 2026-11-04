@@ -1,0 +1,452 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Smart Grid Fault Detection System{% endblock %}</title>
+  
+  <!-- Favicons -->
+  <link href="{% static 'assets/img/favicon.png' %}" rel="icon">
+  <link href="{% static 'assets/img/apple-touch-icon.png' %}" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/aos/aos.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="{% static 'assets/css/main.css' %}" rel="stylesheet">
+
+  <style>
+    :root {
+      --sg-primary: #0284c7;
+      --sg-primary-dark: #0369a1;
+      --sg-accent: #10b981;
+      --sg-warning: #f59e0b;
+      --sg-danger: #ef4444;
+      --sg-dark: #0f172a;
+      --sg-darker: #020617;
+      --sg-surface: #f8fafc;
+      --sg-border: #e2e8f0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--sg-surface);
+      color: #334155;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Outfit', 'Inter', sans-serif;
+    }
+
+    .sg-navbar-top {
+      background: #0f172a;
+      color: #94a3b8;
+      font-size: 0.85rem;
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .sg-navbar-top a {
+      color: #cbd5e1;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .sg-navbar-top a:hover {
+      color: #38bdf8;
+    }
+
+    .sg-navbar-main {
+      background: #ffffff;
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
+      border-bottom: 1px solid var(--sg-border);
+      padding: 12px 0;
+    }
+
+    .sg-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .sg-brand-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #0284c7 0%, #10b981 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.35rem;
+      box-shadow: 0 8px 16px rgba(2, 132, 199, 0.28);
+    }
+
+    .sg-brand-title {
+      font-weight: 800;
+      font-size: 1.2rem;
+      letter-spacing: -0.02em;
+      color: #0f172a;
+      line-height: 1.1;
+      margin: 0;
+    }
+
+    .sg-brand-subtitle {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #64748b;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin: 0;
+    }
+
+    .nav-link-custom {
+      font-weight: 500;
+      font-size: 0.92rem;
+      color: #334155 !important;
+      padding: 8px 14px !important;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .nav-link-custom:hover {
+      color: #0284c7 !important;
+      background: #f1f5f9;
+    }
+
+    .nav-link-custom.active {
+      color: #0284c7 !important;
+      background: #e0f2fe;
+      font-weight: 600;
+    }
+
+    .btn-gradient-primary {
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      color: #ffffff !important;
+      border: none;
+      font-weight: 600;
+      padding: 8px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+      transition: all 0.25s ease;
+    }
+
+    .btn-gradient-primary:hover {
+      background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
+      box-shadow: 0 6px 16px rgba(2, 132, 199, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .btn-gradient-accent {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #ffffff !important;
+      border: none;
+      font-weight: 600;
+      padding: 8px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+      transition: all 0.25s ease;
+    }
+
+    .btn-gradient-accent:hover {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .sg-footer {
+      margin-top: auto;
+      background: #0f172a;
+      color: #94a3b8;
+      padding: 45px 0 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .sg-footer h5 {
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 16px;
+    }
+
+    .sg-footer a {
+      color: #94a3b8;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .sg-footer a:hover {
+      color: #38bdf8;
+    }
+
+    .flash-alert {
+      border-radius: 10px;
+      border: none;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+    }
+
+    .live-pulse-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 0 rgba(16, 185, 129, 0.6);
+      animation: pulse-animation 1.8s infinite;
+    }
+
+    @keyframes pulse-animation {
+      0% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+      }
+      70% {
+        box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+      }
+    }
+  </style>
+
+  {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+  <!-- Top Strip -->
+  <div class="sg-navbar-top">
+    <div class="container d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center">
+        <span class="live-pulse-badge me-3 d-none d-sm-inline-flex">
+          <span class="pulse-dot"></span> SCADA TELEMETRY ACTIVE
+        </span>
+        <span class="me-3"><i class="bi bi-broadcast me-1 text-info"></i> Smart Grid Fault Detection & Localization</span>
+        <span class="d-none d-lg-inline text-muted">|</span>
+        <span class="d-none d-lg-inline ms-3"><i class="bi bi-lightning-charge me-1 text-warning"></i> AI Automated Anomaly Diagnostics</span>
+      </div>
+      <div class="d-flex align-items-center gap-3">
+        {% if request.session.username %}
+          <span class="text-white small">
+            <i class="bi bi-person-circle me-1"></i> Logged in: <strong>{{ request.session.username }}</strong>
+            <span class="badge bg-primary ms-1">{{ request.session.usertype }}</span>
+          </span>
+          {% if request.session.usertype == 'Admin' %}
+            <a href="/admin_home" class="text-info small fw-semibold"><i class="bi bi-speedometer2 me-1"></i> Admin Console</a>
+          {% elif request.session.usertype == 'Grid Operator' %}
+            <a href="/operator_home" class="text-info small fw-semibold"><i class="bi bi-speedometer2 me-1"></i> Control Room</a>
+          {% elif request.session.usertype == 'Maintenance Technician' %}
+            <a href="/technician_home" class="text-info small fw-semibold"><i class="bi bi-speedometer2 me-1"></i> Field Portal</a>
+          {% endif %}
+          <a href="/logout" class="text-danger small fw-semibold"><i class="bi bi-box-arrow-right"></i> Logout</a>
+        {% else %}
+          <a href="/login"><i class="bi bi-box-arrow-in-right me-1"></i> Portal Login</a>
+          <a href="/operator_registration" class="d-none d-md-inline"><i class="bi bi-person-badge me-1"></i> Operator Register</a>
+          <a href="/technician_registration" class="d-none d-md-inline"><i class="bi bi-tools me-1"></i> Technician Register</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Navigation -->
+  <nav class="navbar navbar-expand-lg sg-navbar-main sticky-top">
+    <div class="container">
+      <a class="sg-brand" href="/">
+        <div class="sg-brand-icon">
+          <i class="bi bi-lightning-charge-fill"></i>
+        </div>
+        <div>
+          <h1 class="sg-brand-title">SmartGrid AI</h1>
+          <p class="sg-brand-subtitle">Fault Detection & Grid Telemetry</p>
+        </div>
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sgMainNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="sgMainNav">
+        <ul class="navbar-nav me-auto ms-lg-4">
+          <li class="nav-item">
+            <a class="nav-link nav-link-custom" href="/"><i class="bi bi-house-door me-1"></i> Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link nav-link-custom" href="/#features"><i class="bi bi-grid-3x3-gap me-1"></i> Grid Features</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link nav-link-custom" href="/#detection"><i class="bi bi-activity me-1"></i> Fault Detection AI</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link nav-link-custom" href="/#substations"><i class="bi bi-diagram-3 me-1"></i> Substations</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link nav-link-custom" href="/#contact"><i class="bi bi-headset me-1"></i> Support</a>
+          </li>
+          {% if request.session.usertype == 'Admin' %}
+            <li class="nav-item">
+              <a class="nav-link nav-link-custom active text-primary fw-bold" href="/admin_home"><i class="bi bi-shield-lock me-1"></i> Admin Console</a>
+            </li>
+          {% elif request.session.usertype == 'Grid Operator' %}
+            <li class="nav-item">
+              <a class="nav-link nav-link-custom active text-primary fw-bold" href="/operator_home"><i class="bi bi-cpu me-1"></i> Operator Room</a>
+            </li>
+          {% elif request.session.usertype == 'Maintenance Technician' %}
+            <li class="nav-item">
+              <a class="nav-link nav-link-custom active text-primary fw-bold" href="/technician_home"><i class="bi bi-tools me-1"></i> Technician Portal</a>
+            </li>
+          {% endif %}
+        </ul>
+
+        <div class="d-flex align-items-center gap-2">
+          {% if request.session.username %}
+            {% if request.session.usertype == 'Admin' %}
+              <a href="/admin_home" class="btn btn-outline-primary btn-sm"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a>
+            {% elif request.session.usertype == 'Grid Operator' %}
+              <a href="/operator_home" class="btn btn-outline-primary btn-sm"><i class="bi bi-speedometer2 me-1"></i> Control Panel</a>
+            {% elif request.session.usertype == 'Maintenance Technician' %}
+              <a href="/technician_home" class="btn btn-outline-primary btn-sm"><i class="bi bi-speedometer2 me-1"></i> Work Orders</a>
+            {% endif %}
+            <a href="/logout" class="btn btn-danger btn-sm" title="Logout"><i class="bi bi-box-arrow-right"></i></a>
+          {% else %}
+            <a href="/login" class="btn btn-outline-primary btn-sm px-3 fw-semibold"><i class="bi bi-box-arrow-in-right me-1"></i> Login</a>
+            <div class="dropdown">
+              <button class="btn btn-gradient-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <i class="bi bi-person-plus me-1"></i> Register
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
+                <li><a class="dropdown-item py-2" href="/operator_registration"><i class="bi bi-person-badge me-2 text-primary"></i> As Grid Operator</a></li>
+                <li><a class="dropdown-item py-2" href="/technician_registration"><i class="bi bi-tools me-2 text-success"></i> As Maintenance Technician</a></li>
+              </ul>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Flash Messages -->
+  <div class="container mt-3">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show flash-alert" role="alert">
+          <div class="d-flex align-items-center">
+            {% if message.tags == 'error' or message.tags == 'danger' %}
+              <i class="bi bi-exclamation-octagon-fill text-danger fs-5 me-2"></i>
+            {% elif message.tags == 'success' %}
+              <i class="bi bi-check-circle-fill text-success fs-5 me-2"></i>
+            {% else %}
+              <i class="bi bi-info-circle-fill text-primary fs-5 me-2"></i>
+            {% endif %}
+            <div>{{ message }}</div>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+
+  <!-- Main Content Block -->
+  <main class="flex-grow-1">
+    {% block content %}
+    {% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="sg-footer">
+    <div class="container">
+      <div class="row g-4 mb-4">
+        <div class="col-lg-4 col-md-6">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <div class="sg-brand-icon" style="width: 36px; height: 36px; font-size: 1.1rem;">
+              <i class="bi bi-lightning-charge-fill"></i>
+            </div>
+            <h5 class="mb-0 text-white">SmartGrid AI</h5>
+          </div>
+          <p class="small text-secondary">
+            Advanced Smart Grid Fault Detection & Telemetry Platform. Empowering grid operators and field technicians with predictive machine learning, high-voltage line monitoring, and millisecond fault localization.
+          </p>
+          <div class="d-flex gap-3 text-secondary mt-3">
+            <span class="badge bg-dark border border-secondary text-info"><i class="bi bi-cpu me-1"></i> AI Neural Predictor</span>
+            <span class="badge bg-dark border border-secondary text-success"><i class="bi bi-shield-check me-1"></i> 99.98% Grid Reliability</span>
+          </div>
+        </div>
+        <div class="col-lg-2 col-md-6">
+          <h5>Quick Portals</h5>
+          <ul class="list-unstyled small">
+            <li class="mb-2"><a href="/login"><i class="bi bi-chevron-right me-1"></i> Secure Login</a></li>
+            <li class="mb-2"><a href="/operator_registration"><i class="bi bi-chevron-right me-1"></i> Operator Register</a></li>
+            <li class="mb-2"><a href="/technician_registration"><i class="bi bi-chevron-right me-1"></i> Technician Register</a></li>
+            <li class="mb-2"><a href="/admin_home"><i class="bi bi-chevron-right me-1"></i> Admin Console</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <h5>Fault Analytics</h5>
+          <ul class="list-unstyled small">
+            <li class="mb-2"><a href="#"><i class="bi bi-check2 text-success me-1"></i> Symmetrical & Asymmetrical Faults</a></li>
+            <li class="mb-2"><a href="#"><i class="bi bi-check2 text-success me-1"></i> Line-to-Ground (L-G) Detection</a></li>
+            <li class="mb-2"><a href="#"><i class="bi bi-check2 text-success me-1"></i> Transformer Thermal Overload</a></li>
+            <li class="mb-2"><a href="#"><i class="bi bi-check2 text-success me-1"></i> Transient Frequency Instability</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <h5>Grid Dispatch & Support</h5>
+          <p class="small mb-2"><i class="bi bi-geo-alt me-2 text-primary"></i> Central Grid Dispatch & SCADA Center</p>
+          <p class="small mb-2"><i class="bi bi-envelope me-2 text-primary"></i> control@smartgrid-dispatch.org</p>
+          <p class="small mb-2"><i class="bi bi-telephone me-2 text-primary"></i> 24/7 Grid Hotline: +1 (800) 555-GRID</p>
+        </div>
+      </div>
+      <div class="pt-3 border-top border-secondary text-center small text-secondary">
+        <p class="mb-0">© 2026 Smart Grid Fault Detection & Localization System. All Rights Reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Vendor JS Files -->
+  <script src="{% static 'assets/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/aos/aos.js' %}"></script>
+  <script src="{% static 'assets/vendor/glightbox/js/glightbox.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/swiper/swiper-bundle.min.js' %}"></script>
+
+  <!-- Main JS File -->
+  <script src="{% static 'assets/js/main.js' %}"></script>
+
+  <script>
+    if (typeof AOS !== 'undefined') {
+      AOS.init({
+        duration: 800,
+        easing: 'ease-in-out',
+        once: true
+      });
+    }
+  </script>
+
+  {% block extra_js %}{% endblock %}
+</body>
+
+</html>
