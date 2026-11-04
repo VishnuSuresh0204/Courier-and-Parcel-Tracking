@@ -1,0 +1,86 @@
+{% extends 'commen.html' %}
+{% load static %}
+
+{% block title %}TrackParcel | Delivery Agent Profile{% endblock %}
+
+{% block content %}
+<div class="tp-header-banner">
+  <div class="container text-center">
+    <h2 class="display-6 fw-bold mb-1">Delivery Partner Profile</h2>
+    <p class="text-white-50 mb-0">Manage vehicle registration, contact number, and credentials</p>
+  </div>
+</div>
+
+<div class="container py-4 mb-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="tp-card p-4 p-md-5">
+        <div class="d-flex align-items-center gap-4 pb-4 border-bottom mb-4">
+          {% if agent.profile_image %}
+            <img src="{{ agent.profile_image.url }}" alt="{{ agent.name }}" class="rounded-circle border" style="width: 72px; height: 72px; object-fit: cover;">
+          {% else %}
+            <div class="rounded-circle bg-light text-success d-flex align-items-center justify-content-center fw-bold border fs-3" style="width: 72px; height: 72px;">
+              {{ agent.name|slice:":1"|upper }}
+            </div>
+          {% endif %}
+          <div>
+            <h4 class="fw-bold mb-0 text-dark">{{ agent.name }}</h4>
+            <div class="text-muted small">Badge ID: <strong>{{ agent.employee_id }}</strong> &bull; Member since {{ agent.created_at|date:"M Y" }}</div>
+            <span class="badge bg-success mt-1">Delivery Agent</span>
+          </div>
+        </div>
+
+        <form method="POST" action="/agent_profile" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Agent Full Name <span class="text-danger">*</span></label>
+              <input type="text" name="name" class="form-control" value="{{ agent.name }}" required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Email Address <span class="text-danger">*</span></label>
+              <input type="email" name="email" class="form-control" value="{{ agent.email }}" required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Phone Number <span class="text-danger">*</span></label>
+              <input type="tel" name="phone" class="form-control" value="{{ agent.phone }}" required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Vehicle Type <span class="text-danger">*</span></label>
+              <input type="text" name="vehicle_type" class="form-control" value="{{ agent.vehicle_type }}" required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Vehicle Number <span class="text-danger">*</span></label>
+              <input type="text" name="vehicle_number" class="form-control" value="{{ agent.vehicle_number }}" required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Update Avatar / Photo</label>
+              <input type="file" name="profile_image" class="form-control" accept="image/*">
+            </div>
+
+            <div class="col-12">
+              <label class="form-label small fw-semibold">Residential Locality / Address <span class="text-danger">*</span></label>
+              <textarea name="address" class="form-control" rows="3" required>{{ agent.address }}</textarea>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center pt-4 border-top mt-4">
+            <a href="/agent_home" class="btn btn-outline-secondary">
+              <i class="bi bi-arrow-left me-1"></i> Dashboard
+            </a>
+            <button type="submit" class="btn btn-tp-primary px-4 fw-bold">
+              <i class="bi bi-check2 me-1"></i> Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
