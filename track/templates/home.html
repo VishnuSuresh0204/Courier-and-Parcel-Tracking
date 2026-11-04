@@ -1,44 +1,43 @@
 {% extends 'commen.html' %}
 {% load static %}
 
-{% block title %}Smart Grid Fault Detection & Localization System{% endblock %}
+{% block title %}TrackParcel | Fast, Secure & Reliable Parcel Delivery System{% endblock %}
 
 {% block extra_css %}
 <style>
-  .hero-section {
+  .hero-courier {
     position: relative;
-    background: linear-gradient(135deg, rgba(2, 6, 23, 0.94) 0%, rgba(15, 23, 42, 0.9) 100%),
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.94) 0%, rgba(30, 41, 59, 0.9) 100%),
                 url("{% static 'assets/img/hero-carousel/hero-carousel-1.jpg' %}") center/cover no-repeat;
     color: #ffffff;
-    padding: 100px 0 80px;
+    padding: 90px 0 80px;
     overflow: hidden;
   }
 
-  .hero-badge {
+  .hero-badge-pill {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: rgba(2, 132, 199, 0.18);
-    border: 1px solid rgba(56, 189, 248, 0.3);
+    background: rgba(249, 115, 22, 0.2);
+    border: 1px solid rgba(249, 115, 22, 0.4);
     padding: 6px 16px;
     border-radius: 30px;
     font-size: 0.85rem;
     font-weight: 600;
-    color: #38bdf8;
-    margin-bottom: 24px;
-    backdrop-filter: blur(8px);
+    color: #fdba74;
+    margin-bottom: 22px;
   }
 
   .hero-title {
     font-size: 3.2rem;
     font-weight: 800;
-    line-height: 1.15;
+    line-height: 1.18;
     letter-spacing: -0.03em;
-    margin-bottom: 20px;
+    margin-bottom: 18px;
   }
 
   .hero-title span {
-    background: linear-gradient(135deg, #38bdf8 0%, #34d399 100%);
+    background: linear-gradient(135deg, #f97316 0%, #38bdf8 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
@@ -46,36 +45,44 @@
   .hero-lead {
     font-size: 1.15rem;
     color: #cbd5e1;
-    max-width: 650px;
+    max-width: 620px;
     line-height: 1.6;
-    margin-bottom: 32px;
+    margin-bottom: 30px;
   }
 
-  .kpi-card {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(12px);
+  /* Quick Tracking Hero Box */
+  .hero-track-box {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
+  }
+
+  .kpi-stat-card {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 14px;
-    padding: 22px 18px;
+    padding: 20px 16px;
     text-align: center;
-    transition: transform 0.25s ease, background 0.25s ease;
+    transition: transform 0.2s ease, background 0.2s ease;
   }
 
-  .kpi-card:hover {
+  .kpi-stat-card:hover {
     transform: translateY(-4px);
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(56, 189, 248, 0.4);
+    background: rgba(255, 255, 255, 0.12);
   }
 
-  .kpi-val {
-    font-size: 2.2rem;
+  .kpi-stat-num {
+    font-size: 2.1rem;
     font-weight: 800;
-    color: #ffffff;
     line-height: 1;
     margin-bottom: 6px;
   }
 
-  .kpi-lbl {
+  .kpi-stat-label {
     font-size: 0.78rem;
     color: #94a3b8;
     text-transform: uppercase;
@@ -84,169 +91,194 @@
     margin: 0;
   }
 
-  .telemetry-ticker {
-    background: #090e17;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 12px 0;
-    font-size: 0.86rem;
-    color: #94a3b8;
-  }
-
-  .ticker-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 4px 12px;
-    background: rgba(255, 255, 255, 0.06);
-    border-radius: 6px;
-    margin-right: 18px;
-  }
-
-  .feature-card {
+  /* Services & Features */
+  .service-card {
     background: #ffffff;
+    border: 1px solid var(--tp-border);
     border-radius: 16px;
     padding: 32px 26px;
-    border: 1px solid var(--sg-border);
-    transition: all 0.3s ease;
     height: 100%;
+    transition: all 0.3s ease;
   }
 
-  .feature-card:hover {
+  .service-card:hover {
     transform: translateY(-6px);
-    box-shadow: 0 16px 32px rgba(2, 132, 199, 0.08);
-    border-color: #7dd3fc;
+    box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+    border-color: #3b82f6;
   }
 
-  .feature-icon {
-    width: 56px;
-    height: 56px;
+  .service-icon-wrap {
+    width: 60px;
+    height: 60px;
     border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.6rem;
-    margin-bottom: 20px;
+    font-size: 1.7rem;
+    margin-bottom: 22px;
   }
 
-  .portal-card {
-    background: #ffffff;
+  .step-card {
+    text-align: center;
+    padding: 20px 15px;
+    position: relative;
+  }
+
+  .step-number {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--tp-primary);
+    color: white;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+  }
+
+  .portal-highlight-card {
     border-radius: 16px;
-    border: 1px solid var(--sg-border);
+    background: white;
+    border: 1px solid var(--tp-border);
     overflow: hidden;
-    transition: all 0.3s ease;
     height: 100%;
     display: flex;
     flex-direction: column;
+    transition: all 0.3s ease;
   }
 
-  .portal-card:hover {
+  .portal-highlight-card:hover {
     transform: translateY(-6px);
-    box-shadow: 0 20px 36px rgba(15, 23, 42, 0.08);
-    border-color: #0284c7;
+    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
   }
 
-  .portal-header {
+  .portal-card-header {
     padding: 24px;
-    color: #ffffff;
+    color: white;
   }
 
-  .portal-body {
+  .portal-card-body {
     padding: 24px;
     flex-grow: 1;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
   }
-
-  .grid-simulator-box {
-    background: #0f172a;
-    border-radius: 16px;
-    padding: 32px;
-    color: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
-  }
-
-  .sim-metric {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 10px;
-    padding: 16px;
-  }
 </style>
 {% endblock %}
 
 {% block content %}
 
-<!-- Hero Section -->
-<section class="hero-section">
+<!-- Hero Section with Live Tracking Bar -->
+<section class="hero-courier">
   <div class="container position-relative">
     <div class="row align-items-center g-5">
       <div class="col-lg-7" data-aos="fade-right">
-        <div class="hero-badge">
-          <i class="bi bi-shield-check"></i> SCADA & PMU Automated Anomaly Protection
+        <div class="hero-badge-pill">
+          <i class="bi bi-box-seam"></i> Modern Express Delivery Platform
         </div>
         <h1 class="hero-title">
-          Next-Gen AI <span>Smart Grid Fault Detection</span> & Localization
+          Fast, Reliable & Trackable <span>Doorstep Parcel Delivery</span>
         </h1>
         <p class="hero-lead">
-          Continuous telemetry stream ingestion, millisecond fault recognition, automated line-to-ground isolation, and coordinated technician dispatch across transmission & distribution networks.
+          From neighborhood couriers to nationwide branch-to-branch cargo. Book consignments seamlessly, manage delivery runs, and track every stage in real-time.
         </p>
 
-        <div class="d-flex flex-wrap gap-3 mb-4">
-          <a href="/login" class="btn btn-gradient-primary btn-lg px-4 shadow">
-            <i class="bi bi-box-arrow-in-right me-2"></i> Access Portal
-          </a>
-          <a href="/operator_registration" class="btn btn-outline-light btn-lg px-4">
-            <i class="bi bi-person-badge me-2"></i> Operator Register
-          </a>
-          <a href="/technician_registration" class="btn btn-outline-info btn-lg px-4">
-            <i class="bi bi-tools me-2"></i> Technician Register
-          </a>
+        <!-- Live Consignment Tracking Search -->
+        <div class="hero-track-box mb-4">
+          <label class="form-label text-white fw-semibold small mb-2">
+            <i class="bi bi-search me-1 text-warning"></i> Instant Parcel Tracking
+          </label>
+          <form action="/public_track_parcel" method="POST">
+            {% csrf_token %}
+            <div class="input-group">
+              <span class="input-group-text bg-white border-0 text-muted">
+                <i class="bi bi-upc-scan fs-5"></i>
+              </span>
+              <input type="text" name="tracking_id" class="form-control form-control-lg border-0 shadow-none" placeholder="Enter Tracking ID (e.g. CR9D0B82A1)" required>
+              <button class="btn btn-tp-accent px-4 fw-bold" type="submit">
+                <i class="bi bi-send-fill me-1"></i> Track Now
+              </button>
+            </div>
+          </form>
+          <div class="d-flex align-items-center gap-3 mt-2 text-white-50 small">
+            <span><i class="bi bi-shield-check text-success me-1"></i> 100% Encrypted</span>
+            <span><i class="bi bi-geo-alt text-info me-1"></i> Live Hub Transit Status</span>
+          </div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-3">
+          {% if request.session.username %}
+            {% if request.session.usertype == 'Customer' %}
+              <a href="/book_parcel" class="btn btn-tp-accent btn-lg px-4 fw-bold">
+                <i class="bi bi-plus-circle-fill me-2"></i> Book a Parcel
+              </a>
+              <a href="/customer_parcels" class="btn btn-outline-light btn-lg px-4 fw-semibold">
+                <i class="bi bi-box-seam me-2"></i> My Shipments
+              </a>
+            {% elif request.session.usertype == 'Delivery Agent' %}
+              <a href="/agent_home" class="btn btn-tp-accent btn-lg px-4 fw-bold">
+                <i class="bi bi-speedometer2 me-2"></i> Agent Workspace
+              </a>
+            {% elif request.session.usertype == 'Admin' %}
+              <a href="/admin_home" class="btn btn-tp-accent btn-lg px-4 fw-bold">
+                <i class="bi bi-shield-lock-fill me-2"></i> Admin Console
+              </a>
+            {% endif %}
+          {% else %}
+            <a href="/customer_registration" class="btn btn-tp-primary btn-lg px-4 fw-bold">
+              <i class="bi bi-person-plus-fill me-2"></i> Register as Customer
+            </a>
+            <a href="/agent_registration" class="btn btn-outline-light btn-lg px-4 fw-semibold">
+              <i class="bi bi-bicycle me-2"></i> Join as Delivery Agent
+            </a>
+          {% endif %}
         </div>
       </div>
 
       <div class="col-lg-5" data-aos="fade-left">
         <div class="row g-3">
           <div class="col-6">
-            <div class="kpi-card">
-              <div class="kpi-val text-info">99.98%</div>
-              <p class="kpi-lbl">Grid Reliability</p>
+            <div class="kpi-stat-card">
+              <div class="kpi-stat-num text-warning">50K+</div>
+              <p class="kpi-stat-label">Parcels Delivered</p>
             </div>
           </div>
           <div class="col-6">
-            <div class="kpi-card">
-              <div class="kpi-val text-success">&lt; 35ms</div>
-              <p class="kpi-lbl">Fault Trip Speed</p>
+            <div class="kpi-stat-card">
+              <div class="kpi-stat-num text-success">99.8%</div>
+              <p class="kpi-stat-label">On-Time Arrival</p>
             </div>
           </div>
           <div class="col-6">
-            <div class="kpi-card">
-              <div class="kpi-val text-warning">480+</div>
-              <p class="kpi-lbl">Lines Monitored</p>
+            <div class="kpi-stat-card">
+              <div class="kpi-stat-num text-info">120+</div>
+              <p class="kpi-stat-label">Hubs & Branches</p>
             </div>
           </div>
           <div class="col-6">
-            <div class="kpi-card">
-              <div class="kpi-val text-primary">0.00%</div>
-              <p class="kpi-lbl">System Blind Spots</p>
+            <div class="kpi-stat-card">
+              <div class="kpi-stat-num text-primary">24/7</div>
+              <p class="kpi-stat-label">Live Dispatch</p>
             </div>
           </div>
         </div>
 
-        <div class="mt-4 p-3 rounded-3 bg-dark border border-secondary text-white small">
+        <!-- Live Courier Status Widget -->
+        <div class="mt-4 p-3 rounded-3 bg-dark border border-secondary text-white small shadow">
           <div class="d-flex justify-content-between align-items-center mb-2">
-            <span><i class="bi bi-broadcast text-success me-2"></i> Live Grid Health Status</span>
-            <span class="badge bg-success">OPTIMAL</span>
+            <span><i class="bi bi-truck text-warning me-2"></i> Central Logistics Fleet</span>
+            <span class="badge bg-success">ACTIVE & ROUTED</span>
           </div>
           <div class="progress" style="height: 6px;">
-            <div class="progress-bar bg-success" style="width: 98%"></div>
+            <div class="progress-bar bg-warning" style="width: 88%"></div>
           </div>
-          <div class="d-flex justify-content-between text-muted mt-2" style="font-size: 0.75rem;">
-            <span>Frequency: 50.01 Hz</span>
-            <span>Load: 84.2%</span>
-            <span>Sensors: 100% Online</span>
+          <div class="d-flex justify-content-between text-muted mt-2" style="font-size: 0.78rem;">
+            <span>Standard: 2-3 Days</span>
+            <span>Express: 24-48 Hrs</span>
+            <span>Same-Day: Ready</span>
           </div>
         </div>
       </div>
@@ -254,93 +286,77 @@
   </div>
 </section>
 
-<!-- Telemetry Ticker -->
-<div class="telemetry-ticker">
-  <div class="container d-flex flex-wrap align-items-center justify-content-between">
-    <div class="d-flex flex-wrap align-items-center">
-      <span class="fw-bold text-white me-3"><i class="bi bi-activity text-info me-1"></i> TELEMETRY FEED:</span>
-      <div class="ticker-pill">
-        <span class="text-white fw-semibold">Substation Alpha (400kV)</span>
-        <span class="badge bg-success">STABLE</span>
-      </div>
-      <div class="ticker-pill">
-        <span class="text-white fw-semibold">Feeder Line 12</span>
-        <span class="text-info">Voltage: 228.4 kV</span>
-      </div>
-      <div class="ticker-pill d-none d-md-inline-flex">
-        <span class="text-white fw-semibold">Delta Transformer #3</span>
-        <span class="text-warning">Temp: 52°C</span>
-      </div>
-      <div class="ticker-pill d-none d-lg-inline-flex">
-        <span class="text-white fw-semibold">AI Neural Detector</span>
-        <span class="text-success">Active 0 Faults</span>
-      </div>
-    </div>
-    <div class="d-none d-xl-block">
-      <span class="small text-muted">Sampling: 1000 samples/sec | Protocol: IEEE C37.118</span>
-    </div>
-  </div>
-</div>
-
-<!-- Grid Overview & Core Capabilities -->
-<section id="features" class="py-5">
+<!-- Delivery Services Section -->
+<section id="services" class="py-5">
   <div class="container py-4">
     <div class="text-center mb-5" data-aos="fade-up">
-      <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-semibold">Comprehensive Architecture</span>
-      <h2 class="display-6 fw-bold mt-2 text-dark">Intelligent Fault Protection Framework</h2>
+      <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-semibold">Tailored Logistics</span>
+      <h2 class="display-6 fw-bold mt-2 text-dark">Flexible Delivery Options for Every Need</h2>
       <p class="text-muted mx-auto" style="max-width: 650px;">
-        High-speed data acquisition combined with machine learning models to detect, classify, and isolate grid faults before cascade blackouts happen.
+        Choose standard, express, or same-day delivery with transparent upfront rates and complete shipment tracking.
       </p>
     </div>
 
     <div class="row g-4">
-      <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="100">
-        <div class="feature-card">
-          <div class="feature-icon bg-primary bg-opacity-10 text-primary">
-            <i class="bi bi-lightning-charge"></i>
+      <!-- Standard Delivery -->
+      <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+        <div class="service-card">
+          <div class="service-icon-wrap bg-primary bg-opacity-10 text-primary">
+            <i class="bi bi-box-seam"></i>
           </div>
-          <h4 class="fw-bold text-dark">Transient Fault Classification</h4>
-          <p class="text-muted">
-            Instantaneous discrimination between Line-to-Ground (L-G), Line-to-Line (L-L), and Double Line-to-Ground (L-L-G) faults using high-frequency waveform analysis.
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h4 class="fw-bold mb-0">Standard Delivery</h4>
+            <span class="badge bg-primary bg-opacity-10 text-primary fs-6 px-3 py-1">₹50 Base</span>
+          </div>
+          <p class="text-muted small">
+            Cost-efficient road cargo network for non-urgent shipments, documents, and merchandise across branches.
           </p>
           <ul class="list-unstyled small text-secondary mt-3">
-            <li class="mb-1"><i class="bi bi-check-circle-fill text-success me-2"></i> Asymmetrical fault detection</li>
-            <li class="mb-1"><i class="bi bi-check-circle-fill text-success me-2"></i> Symmetrical 3-phase short circuits</li>
-            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Wavelet transform filtering</li>
+            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> 2-4 business days turnaround</li>
+            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Hub-to-hub checkpoint scanning</li>
+            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Doorstep signature verification</li>
           </ul>
         </div>
       </div>
 
-      <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="200">
-        <div class="feature-card">
-          <div class="feature-icon bg-success bg-opacity-10 text-success">
-            <i class="bi bi-geo-alt"></i>
+      <!-- Express Courier -->
+      <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+        <div class="service-card border-primary" style="box-shadow: 0 10px 25px rgba(37, 99, 235, 0.1);">
+          <div class="service-icon-wrap bg-warning bg-opacity-10 text-warning">
+            <i class="bi bi-lightning-charge-fill"></i>
           </div>
-          <h4 class="fw-bold text-dark">Substation Distance Localization</h4>
-          <p class="text-muted">
-            Pinpoints fault location down to within ±100 meters of overhead transmission lines, drastically cutting field maintenance downtime and patrol costs.
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h4 class="fw-bold mb-0">Express Courier</h4>
+            <span class="badge bg-warning bg-opacity-10 text-warning fs-6 px-3 py-1">₹100 Base</span>
+          </div>
+          <p class="text-muted small">
+            Priority routing via dedicated transit corridors for time-sensitive packages requiring accelerated handling.
           </p>
           <ul class="list-unstyled small text-secondary mt-3">
-            <li class="mb-1"><i class="bi bi-check-circle-fill text-success me-2"></i> Traveling wave impedance calculation</li>
-            <li class="mb-1"><i class="bi bi-check-circle-fill text-success me-2"></i> Precise tower coordinates logging</li>
-            <li><i class="bi bi-check-circle-fill text-success me-2"></i> GPS synchronized timestamping</li>
+            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Guaranteed 24-48 hour delivery</li>
+            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Priority loading & dispatch</li>
+            <li><i class="bi bi-check-circle-fill text-success me-2"></i> SMS & Live tracking alerts</li>
           </ul>
         </div>
       </div>
 
-      <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="300">
-        <div class="feature-card">
-          <div class="feature-icon bg-warning bg-opacity-10 text-warning">
-            <i class="bi bi-shield-exclamation"></i>
+      <!-- Same Day Delivery -->
+      <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+        <div class="service-card">
+          <div class="service-icon-wrap bg-success bg-opacity-10 text-success">
+            <i class="bi bi-rocket-takeoff-fill"></i>
           </div>
-          <h4 class="fw-bold text-dark">Thermal Overload & Arc Flash</h4>
-          <p class="text-muted">
-            Predicts insulation degradation, conductor thermal sag, and transformer winding hot spots before critical equipment failures or fires occur.
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h4 class="fw-bold mb-0">Same Day Delivery</h4>
+            <span class="badge bg-success bg-opacity-10 text-success fs-6 px-3 py-1">₹150 Base</span>
+          </div>
+          <p class="text-muted small">
+            Instant courier assignment for urgent packages, medicines, and important papers within municipal limits.
           </p>
           <ul class="list-unstyled small text-secondary mt-3">
-            <li class="mb-1"><i class="bi bi-check-circle-fill text-success me-2"></i> Transformer oil temperature telemetry</li>
-            <li class="mb-1"><i class="bi bi-check-circle-fill text-success me-2"></i> Harmonic distortion measurement</li>
-            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Dynamic thermal line rating (DTLR)</li>
+            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Direct courier dispatch in hours</li>
+            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Available delivery agent matching</li>
+            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Real-time agent route tracking</li>
           </ul>
         </div>
       </div>
@@ -348,194 +364,150 @@
   </div>
 </section>
 
-<!-- Interactive SCADA Telemetry Preview -->
-<section id="detection" class="py-5 bg-light">
-  <div class="container py-4">
-    <div class="row align-items-center g-5">
-      <div class="col-lg-6" data-aos="fade-right">
-        <span class="badge bg-info bg-opacity-10 text-info px-3 py-2 rounded-pill fw-semibold">Live SCADA Emulation</span>
-        <h2 class="display-6 fw-bold mt-2 text-dark">Intelligent Grid Telemetry In Action</h2>
-        <p class="text-muted">
-          Our distributed monitoring network correlates telemetry from smart relays, Phasor Measurement Units (PMU), and current transformers (CT) across the power grid.
-        </p>
-        <div class="d-flex align-items-start gap-3 mb-3">
-          <div class="p-2 rounded bg-primary text-white"><i class="bi bi-cpu-fill fs-5"></i></div>
-          <div>
-            <h6 class="fw-bold mb-1">Deep Neural Network Classifier</h6>
-            <p class="small text-muted mb-0">Trained on over 50,000 grid anomaly cycles to distinguish between harmless load switching and severe fault transients.</p>
-          </div>
-        </div>
-        <div class="d-flex align-items-start gap-3 mb-3">
-          <div class="p-2 rounded bg-success text-white"><i class="bi bi-send-check-fill fs-5"></i></div>
-          <div>
-            <h6 class="fw-bold mb-1">Automated Technician Dispatch</h6>
-            <p class="small text-muted mb-0">Instantly routes fault coordinates, affected phase, and required replacement hardware directly to on-call maintenance engineers.</p>
-          </div>
-        </div>
-        <div class="d-flex align-items-start gap-3">
-          <div class="p-2 rounded bg-warning text-white"><i class="bi bi-lock-fill fs-5"></i></div>
-          <div>
-            <h6 class="fw-bold mb-1">Secure Multi-Tiered Access</h6>
-            <p class="small text-muted mb-0">Role-segregated environments for System Administrators, Grid Operators, and Field Technicians with audit compliance.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-lg-6" data-aos="fade-left">
-        <div class="grid-simulator-box">
-          <div class="d-flex justify-content-between align-items-center pb-3 border-bottom border-secondary mb-4">
-            <div>
-              <h5 class="fw-bold mb-0 text-white"><i class="bi bi-display me-2 text-info"></i> Grid Telemetry Monitor</h5>
-              <small class="text-secondary">Substation S-104 &bull; 400 kV Feeder</small>
-            </div>
-            <span class="live-pulse-badge">
-              <span class="pulse-dot"></span> LIVE ONLINE
-            </span>
-          </div>
-
-          <div class="row g-3 mb-4">
-            <div class="col-6">
-              <div class="sim-metric">
-                <div class="small text-secondary mb-1">Bus Voltage</div>
-                <div class="fs-4 fw-bold text-info">398.7 <small class="fs-6">kV</small></div>
-                <div class="small text-success mt-1"><i class="bi bi-arrow-up-short"></i> Within ±2% Nom</div>
-              </div>
-            </div>
-            <div class="col-6">
-              <div class="sim-metric">
-                <div class="small text-secondary mb-1">Grid Frequency</div>
-                <div class="fs-4 fw-bold text-success">50.02 <small class="fs-6">Hz</small></div>
-                <div class="small text-success mt-1"><i class="bi bi-check-circle"></i> Synced to Grid</div>
-              </div>
-            </div>
-            <div class="col-6">
-              <div class="sim-metric">
-                <div class="small text-secondary mb-1">Feeder Current</div>
-                <div class="fs-4 fw-bold text-white">1,245 <small class="fs-6">A</small></div>
-                <div class="small text-secondary mt-1">Balanced 3-Phase</div>
-              </div>
-            </div>
-            <div class="col-6">
-              <div class="sim-metric">
-                <div class="small text-secondary mb-1">Power Factor (cos φ)</div>
-                <div class="fs-4 fw-bold text-warning">0.96 <small class="fs-6">Lag</small></div>
-                <div class="small text-info mt-1">Capacitor Bank Active</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="p-3 rounded bg-dark border border-secondary">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="small text-secondary">AI Anomaly Risk Index</span>
-              <span class="small text-success fw-bold">LOW RISK (1.2%)</span>
-            </div>
-            <div class="progress" style="height: 8px;">
-              <div class="progress-bar bg-success" style="width: 12%"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Role Portals / Entity Access -->
-<section id="substations" class="py-5">
+<!-- How It Works Section -->
+<section id="how-it-works" class="py-5 bg-light">
   <div class="container py-4">
     <div class="text-center mb-5" data-aos="fade-up">
-      <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-semibold">Role-Based Ecosystem</span>
-      <h2 class="display-6 fw-bold mt-2 text-dark">Specialized Portals for Every Grid Entity</h2>
-      <p class="text-muted mx-auto" style="max-width: 650px;">
-        Engineered specifically for Grid Operators, Maintenance Technicians, and Central Administrators to streamline operations.
+      <span class="badge bg-warning bg-opacity-10 text-warning px-3 py-2 rounded-pill fw-semibold">Step-by-Step Flow</span>
+      <h2 class="display-6 fw-bold mt-2 text-dark">How Consignments Travel</h2>
+      <p class="text-muted mx-auto" style="max-width: 600px;">
+        A seamless 4-step logistics chain ensuring transparency and safety for every parcel.
       </p>
     </div>
 
     <div class="row g-4">
-      <!-- Grid Operator Card -->
+      <div class="col-md-3" data-aos="fade-up" data-aos-delay="100">
+        <div class="step-card bg-white rounded-4 p-4 shadow-sm h-100">
+          <div class="step-number">1</div>
+          <h5 class="fw-bold">Book Online</h5>
+          <p class="small text-muted mb-0">Enter sender, receiver, destination, parcel weight, and get your unique Tracking ID instantly.</p>
+        </div>
+      </div>
+
+      <div class="col-md-3" data-aos="fade-up" data-aos-delay="200">
+        <div class="step-card bg-white rounded-4 p-4 shadow-sm h-100">
+          <div class="step-number" style="background: #f97316;">2</div>
+          <h5 class="fw-bold">Picked Up</h5>
+          <p class="small text-muted mb-0">A verified delivery agent picks up your consignment and hands it over to the nearest active branch hub.</p>
+        </div>
+      </div>
+
+      <div class="col-md-3" data-aos="fade-up" data-aos-delay="300">
+        <div class="step-card bg-white rounded-4 p-4 shadow-sm h-100">
+          <div class="step-number" style="background: #0284c7;">3</div>
+          <h5 class="fw-bold">Branch Transit</h5>
+          <p class="small text-muted mb-0">Your package travels securely across verified hubs, updating tracking timestamps automatically.</p>
+        </div>
+      </div>
+
+      <div class="col-md-3" data-aos="fade-up" data-aos-delay="400">
+        <div class="step-card bg-white rounded-4 p-4 shadow-sm h-100">
+          <div class="step-number" style="background: #10b981;">4</div>
+          <h5 class="fw-bold">Delivered</h5>
+          <p class="small text-muted mb-0">The local delivery agent brings the parcel to the recipient's door, marking the delivery complete.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Role Ecosystem Portals -->
+<section class="py-5">
+  <div class="container py-4">
+    <div class="text-center mb-5" data-aos="fade-up">
+      <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-semibold">Role-Based Workspaces</span>
+      <h2 class="display-6 fw-bold mt-2 text-dark">Dedicated Portals for Customers, Agents & Admins</h2>
+      <p class="text-muted mx-auto" style="max-width: 600px;">
+        Everything you need to send, deliver, and manage courier operations in one unified system.
+      </p>
+    </div>
+
+    <div class="row g-4">
+      <!-- Customer Card -->
       <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
-        <div class="portal-card">
-          <div class="portal-header" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);">
+        <div class="portal-highlight-card">
+          <div class="portal-card-header" style="background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);">
             <div class="d-flex justify-content-between align-items-center mb-2">
-              <span class="badge bg-light text-primary fw-bold">CONTROL ROOM</span>
-              <i class="bi bi-cpu-fill fs-4"></i>
+              <span class="badge bg-light text-primary fw-bold">FOR SENDERS</span>
+              <i class="bi bi-person-fill fs-4"></i>
             </div>
-            <h4 class="fw-bold mb-1">Grid Operator</h4>
-            <p class="small mb-0 text-white-50">Real-time control room monitoring & dispatch</p>
+            <h4 class="fw-bold mb-1">Customer Portal</h4>
+            <p class="small mb-0 text-white-50">Easy booking, tracking & management</p>
           </div>
-          <div class="portal-body">
+          <div class="portal-card-body">
             <div>
               <p class="text-muted small">
-                Designed for substation operators to oversee live voltage feeds, acknowledge fault alarms, and manage circuit breaker trips.
+                Book new courier deliveries in minutes, calculate charges, track consignments on an interactive timeline, and manage delivery addresses.
               </p>
               <ul class="list-unstyled small text-secondary">
-                <li class="mb-2"><i class="bi bi-check2 text-primary me-2"></i> Real-time SCADA telemetry visualization</li>
-                <li class="mb-2"><i class="bi bi-check2 text-primary me-2"></i> Feeder trip alarms and emergency overrides</li>
-                <li class="mb-2"><i class="bi bi-check2 text-primary me-2"></i> Profile and operator credentials update</li>
+                <li class="mb-2"><i class="bi bi-check2 text-primary me-2"></i> Dynamic price estimate by weight & delivery type</li>
+                <li class="mb-2"><i class="bi bi-check2 text-primary me-2"></i> Real-time status tracker for all your shipments</li>
+                <li class="mb-2"><i class="bi bi-check2 text-primary me-2"></i> Cancel booked orders with a single click</li>
               </ul>
             </div>
             <div class="d-grid gap-2 mt-4">
-              <a href="/login" class="btn btn-outline-primary fw-semibold"><i class="bi bi-box-arrow-in-right me-1"></i> Operator Sign In</a>
-              <a href="/operator_registration" class="btn btn-primary fw-semibold"><i class="bi bi-person-plus me-1"></i> Register as Operator</a>
+              <a href="/login" class="btn btn-outline-primary fw-semibold"><i class="bi bi-box-arrow-in-right me-1"></i> Customer Login</a>
+              <a href="/customer_registration" class="btn btn-tp-primary fw-semibold"><i class="bi bi-person-plus me-1"></i> Sign Up as Customer</a>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Maintenance Technician Card -->
+      <!-- Delivery Agent Card -->
       <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
-        <div class="portal-card">
-          <div class="portal-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+        <div class="portal-highlight-card">
+          <div class="portal-card-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
             <div class="d-flex justify-content-between align-items-center mb-2">
-              <span class="badge bg-light text-success fw-bold">FIELD SERVICE</span>
-              <i class="bi bi-tools fs-4"></i>
+              <span class="badge bg-light text-success fw-bold">FIELD COURIER</span>
+              <i class="bi bi-bicycle fs-4"></i>
             </div>
-            <h4 class="fw-bold mb-1">Maintenance Technician</h4>
-            <p class="small mb-0 text-white-50">On-site inspections, repair & diagnostics</p>
+            <h4 class="fw-bold mb-1">Delivery Agent</h4>
+            <p class="small mb-0 text-white-50">Manage runs, availability & vehicles</p>
           </div>
-          <div class="portal-body">
+          <div class="portal-card-body">
             <div>
               <p class="text-muted small">
-                Tailored for field electrical engineers and technicians executing physical inspections, transformer tests, and line restoration.
+                Dedicated workspace for couriers and riders. Toggle your availability with one tap, view assigned parcels, and manage vehicle credentials.
               </p>
               <ul class="list-unstyled small text-secondary">
-                <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i> Work orders and diagnostic tools hub</li>
-                <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i> Specialization & field experience tracking</li>
-                <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i> Mobile-friendly field service profile</li>
+                <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i> One-click Available / Off Duty toggle</li>
+                <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i> Vehicle details & route tracking</li>
+                <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i> Mobile-optimized agent dashboard</li>
               </ul>
             </div>
             <div class="d-grid gap-2 mt-4">
-              <a href="/login" class="btn btn-outline-success fw-semibold"><i class="bi bi-box-arrow-in-right me-1"></i> Technician Sign In</a>
-              <a href="/technician_registration" class="btn btn-success fw-semibold"><i class="bi bi-person-plus me-1"></i> Register as Technician</a>
+              <a href="/login" class="btn btn-outline-success fw-semibold"><i class="bi bi-box-arrow-in-right me-1"></i> Agent Sign In</a>
+              <a href="/agent_registration" class="btn btn-tp-accent fw-semibold"><i class="bi bi-person-plus me-1"></i> Register as Agent</a>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Central Admin Card -->
+      <!-- Hub Administrator Card -->
       <div class="col-lg-4" data-aos="fade-up" data-aos-delay="300">
-        <div class="portal-card">
-          <div class="portal-header" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
+        <div class="portal-highlight-card">
+          <div class="portal-card-header" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
             <div class="d-flex justify-content-between align-items-center mb-2">
-              <span class="badge bg-primary text-white fw-bold">SYSTEM ADMIN</span>
+              <span class="badge bg-warning text-dark fw-bold">CENTRAL OPERATIONS</span>
               <i class="bi bi-shield-lock-fill fs-4"></i>
             </div>
-            <h4 class="fw-bold mb-1">Central Administrator</h4>
-            <p class="small mb-0 text-white-50">Full system governance & user management</p>
+            <h4 class="fw-bold mb-1">Hub Administrator</h4>
+            <p class="small mb-0 text-white-50">Full fleet, branch & parcel governance</p>
           </div>
-          <div class="portal-body">
+          <div class="portal-card-body">
             <div>
               <p class="text-muted small">
-                Complete oversight of the smart grid personnel, monitoring registered operators, field technicians, and system telemetry health.
+                Comprehensive operations control. Monitor nationwide parcels, update checkpoint statuses, assign branches, and manage agents and customers.
               </p>
               <ul class="list-unstyled small text-secondary">
-                <li class="mb-2"><i class="bi bi-check2 text-dark me-2"></i> Personnel audit & operator verification</li>
-                <li class="mb-2"><i class="bi bi-check2 text-dark me-2"></i> Technician roster with qualifications</li>
-                <li class="mb-2"><i class="bi bi-check2 text-dark me-2"></i> System security & Django admin interface</li>
+                <li class="mb-2"><i class="bi bi-check2 text-dark me-2"></i> Add and manage nationwide courier branches</li>
+                <li class="mb-2"><i class="bi bi-check2 text-dark me-2"></i> Update parcel stages & branch allocations</li>
+                <li class="mb-2"><i class="bi bi-check2 text-dark me-2"></i> Activate/deactivate agent accounts</li>
               </ul>
             </div>
             <div class="d-grid gap-2 mt-4">
-              <a href="/login" class="btn btn-dark fw-semibold"><i class="bi bi-shield-lock me-1"></i> Administrator Login</a>
-              <a href="/admin_home" class="btn btn-outline-secondary fw-semibold"><i class="bi bi-speedometer2 me-1"></i> Admin Dashboard</a>
+              <a href="/login" class="btn btn-dark fw-semibold"><i class="bi bi-shield-lock me-1"></i> Administrator Sign In</a>
+              <a href="/admin_home" class="btn btn-outline-secondary fw-semibold"><i class="bi bi-speedometer2 me-1"></i> Go to Admin Panel</a>
             </div>
           </div>
         </div>
@@ -549,10 +521,10 @@
   <div class="container py-4">
     <div class="row g-4 align-items-center">
       <div class="col-lg-6" data-aos="fade-right">
-        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-semibold">24/7 Operations</span>
-        <h2 class="display-6 fw-bold mt-2 text-dark">Grid Dispatch Emergency Support</h2>
+        <span class="badge bg-warning bg-opacity-10 text-warning px-3 py-2 rounded-pill fw-semibold">Courier Support</span>
+        <h2 class="display-6 fw-bold mt-2 text-dark">Need Assistance with a Delivery?</h2>
         <p class="text-muted">
-          Our centralized dispatch and SCADA engineering teams are available around the clock to support operators and field teams during emergency grid incidents.
+          Our round-the-clock logistics support desk is ready to assist you with tracking queries, branch addresses, or delivery instructions.
         </p>
 
         <div class="d-flex align-items-center gap-3 p-3 bg-white rounded-3 border mb-3 shadow-sm">
@@ -560,8 +532,8 @@
             <i class="bi bi-telephone-inbound fs-4"></i>
           </div>
           <div>
-            <div class="small text-muted">Emergency Dispatch Hotline</div>
-            <div class="fw-bold text-dark fs-5">+1 (800) 555-GRID (4743)</div>
+            <div class="small text-muted">24/7 Toll-Free Support</div>
+            <div class="fw-bold text-dark fs-5">1800-PARCEL-24 (1800-727-235)</div>
           </div>
         </div>
 
@@ -570,30 +542,30 @@
             <i class="bi bi-envelope-check fs-4"></i>
           </div>
           <div>
-            <div class="small text-muted">Technical SCADA Inquiries</div>
-            <div class="fw-bold text-dark fs-5">support@smartgrid-ai.org</div>
+            <div class="small text-muted">Customer Service Email</div>
+            <div class="fw-bold text-dark fs-5">help@trackparcel-express.com</div>
           </div>
         </div>
       </div>
 
       <div class="col-lg-6" data-aos="fade-left">
         <div class="card border-0 shadow-sm p-4 rounded-4">
-          <h4 class="fw-bold text-dark mb-3">Quick Incident Inquiry</h4>
-          <form onsubmit="event.preventDefault(); alert('Inquiry recorded in dispatch log.');">
+          <h4 class="fw-bold text-dark mb-3">Send Quick Logistics Query</h4>
+          <form onsubmit="event.preventDefault(); alert('Your query has been submitted. Our dispatch representative will contact you shortly.');">
             <div class="mb-3">
-              <label class="form-label small fw-semibold">Full Name / Unit</label>
-              <input type="text" class="form-control" placeholder="e.g. John Doe / Substation S-12" required>
+              <label class="form-label small fw-semibold">Your Full Name</label>
+              <input type="text" class="form-control" placeholder="e.g. Alex Johnson" required>
             </div>
             <div class="mb-3">
-              <label class="form-label small fw-semibold">Official Email</label>
-              <input type="email" class="form-control" placeholder="name@powercorp.com" required>
+              <label class="form-label small fw-semibold">Tracking ID (if applicable)</label>
+              <input type="text" class="form-control" placeholder="e.g. CR9D0B82A1">
             </div>
             <div class="mb-3">
-              <label class="form-label small fw-semibold">Inquiry / Report Details</label>
-              <textarea class="form-control" rows="3" placeholder="Describe telemetry anomaly or substation request..." required></textarea>
+              <label class="form-label small fw-semibold">Message / Issue Details</label>
+              <textarea class="form-control" rows="3" placeholder="Tell us about your consignment or question..." required></textarea>
             </div>
-            <button type="submit" class="btn btn-gradient-primary w-100 py-2 fw-semibold">
-              <i class="bi bi-send me-1"></i> Submit to Dispatch Center
+            <button type="submit" class="btn btn-tp-primary w-100 py-2 fw-semibold">
+              <i class="bi bi-send me-1"></i> Submit Inquiry
             </button>
           </form>
         </div>
