@@ -134,3 +134,137 @@ def customer_registration(request):
         return redirect('/login')
 
     return render(request, 'customer_registration.html')
+
+
+# ==========================================
+# 5. DELIVERY AGENT REGISTRATION
+# ==========================================
+
+def agent_registration(request):
+
+    if request.method == 'POST':
+
+        name = request.POST.get('name')
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        address = request.POST.get('address')
+
+        employee_id = request.POST.get('employee_id')
+        vehicle_number = request.POST.get('vehicle_number')
+        vehicle_type = request.POST.get('vehicle_type')
+        experience_years = request.POST.get('experience_years', 0)
+
+        password = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
+
+        profile_image = request.FILES.get('profile_image')
+
+        if password != confirm_password:
+
+            messages.error(request, 'Passwords do not match.')
+            return redirect('/agent_registration')
+
+        if Login.objects.filter(username=username).exists():
+
+            messages.error(request, 'Username already exists.')
+            return redirect('/agent_registration')
+
+        if DeliveryAgentRegistration.objects.filter(
+            employee_id=employee_id
+        ).exists():
+
+            messages.error(request, 'Employee ID already exists.')
+            return redirect('/agent_registration')
+
+        if not all([
+            name, username, email, phone, address,
+            employee_id, vehicle_number, vehicle_type, password
+        ]):
+
+            messages.error(request, 'Please fill all required fields.')
+            return redirect('/agent_registration')
+
+        try:
+            experience_years = int(experience_years)
+
+            if experience_years < 0:
+                raise ValueError
+
+        except (ValueError, TypeError):
+
+            messages.error(request, 'Invalid experience value.')
+            return redirect('/agent_registration')
+
+        user = Login.objects.create_user(
+            username=username,
+            email=email,
+            password=password,
+            user_type='Delivery Agent',
+            view_pass=password
+        )
+
+        DeliveryAgentRegistration.objects.create(
+            user=user,
+            name=name,
+            email=email,
+            phone=phone,
+            address=address,
+            employee_id=employee_id,
+            vehicle_number=vehicle_number,
+            vehicle_type=vehicle_type,
+            experience_years=experience_years,
+            profile_image=profile_image
+        )
+
+        messages.success(request, 'Delivery agent registration completed.')
+        return redirect('/login')
+
+    return render(request, 'agent_registration.html')
+
+
+# ==========================================
+# 6. ADMIN DASHBOARD
+# ==========================================
+
+def admin_home(request):
+
+    if 'userid' not in request.session:
+        return redirect('/login')
+
+    if request.session.get('usertype') != 'Admin':
+        return redirect('/login')
+
+    total_customers = CustomerRegistration.objects.count()
+    total_agents = DeliveryAgentRegistration.objects.count()
+    total_parcels = Parcel.objects.count()
+
+    delivered_parcels = Parcel.objects.filter(
+        status='Delivered'
+    ).count()
+
+    pending_parcels = Parcel.objects.filter(
+        status__in=[
+            'Booked',
+            'Picked Up',
+            'In Transit',
+            'At Branch',
+            'Out for Delivery'
+        ]
+    ).count()
+
+    delayed_parcels = Parcel.objects.filter(
+        status='Delayed'
+    ).count()
+
+    context = {
+        'total_customers': total_customers,
+        'total_agents': total_agents,
+        'total_parcels': total_parcels,
+        'delivered_parcels': delivered_parcels,
+        'pending_parcels': pending_parcels,
+        'delayed_parcels': delayed_parcels,
+    }
+
+    return render(request, 'ADMIN/home.html', context)
+
