@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Smart Grid Fault Detection System{% endblock %}</title>
+  <title>{% block title %}TrackParcel | Smart Courier & Logistics Management{% endblock %}</title>
   
   <!-- Favicons -->
   <link href="{% static 'assets/img/favicon.png' %}" rel="icon">
@@ -14,7 +14,7 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <!-- Vendor CSS Files -->
   <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
@@ -23,25 +23,31 @@
   <link href="{% static 'assets/vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
   <link href="{% static 'assets/vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
 
-  <!-- Main CSS File -->
+  <!-- Main CSS File from Static Assets -->
   <link href="{% static 'assets/css/main.css' %}" rel="stylesheet">
 
+  <!-- Custom Refined Logistics Style (Enhanced Styling) -->
   <style>
     :root {
-      --sg-primary: #0284c7;
-      --sg-primary-dark: #0369a1;
-      --sg-accent: #10b981;
-      --sg-warning: #f59e0b;
-      --sg-danger: #ef4444;
-      --sg-dark: #0f172a;
-      --sg-darker: #020617;
-      --sg-surface: #f8fafc;
-      --sg-border: #e2e8f0;
+      --tp-primary: #1d4ed8;
+      --tp-primary-light: #3b82f6;
+      --tp-primary-dark: #1e3a8a;
+      --tp-accent: #f97316;
+      --tp-accent-hover: #ea580c;
+      --tp-success: #10b981;
+      --tp-warning: #f59e0b;
+      --tp-danger: #ef4444;
+      --tp-dark: #0f172a;
+      --tp-slate: #1e293b;
+      --tp-surface: #f8fafc;
+      --tp-card-bg: #ffffff;
+      --tp-border: #e2e8f0;
+      --tp-muted: #64748b;
     }
 
     body {
-      font-family: 'Inter', sans-serif;
-      background-color: var(--sg-surface);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--tp-surface);
       color: #334155;
       min-height: 100vh;
       display: flex;
@@ -49,64 +55,71 @@
     }
 
     h1, h2, h3, h4, h5, h6 {
-      font-family: 'Outfit', 'Inter', sans-serif;
+      font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
     }
 
-    .sg-navbar-top {
-      background: #0f172a;
+    /* Top Strip */
+    .tp-navbar-top {
+      background: #091224;
       color: #94a3b8;
-      font-size: 0.85rem;
+      font-size: 0.84rem;
       padding: 7px 0;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
 
-    .sg-navbar-top a {
+    .tp-navbar-top a {
       color: #cbd5e1;
       text-decoration: none;
       transition: color 0.2s;
     }
 
-    .sg-navbar-top a:hover {
-      color: #38bdf8;
+    .tp-navbar-top a:hover {
+      color: #f97316;
     }
 
-    .sg-navbar-main {
+    /* Main Navbar */
+    .tp-navbar-main {
       background: #ffffff;
       box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
-      border-bottom: 1px solid var(--sg-border);
+      border-bottom: 1px solid var(--tp-border);
       padding: 12px 0;
     }
 
-    .sg-brand {
+    .tp-brand {
       display: flex;
       align-items: center;
       gap: 12px;
       text-decoration: none;
     }
 
-    .sg-brand-icon {
+    .tp-brand-icon {
       width: 44px;
       height: 44px;
       border-radius: 12px;
-      background: linear-gradient(135deg, #0284c7 0%, #10b981 100%);
+      background: linear-gradient(135deg, #1d4ed8 0%, #f97316 100%);
       display: flex;
       align-items: center;
       justify-content: center;
       color: white;
       font-size: 1.35rem;
-      box-shadow: 0 8px 16px rgba(2, 132, 199, 0.28);
+      box-shadow: 0 6px 16px rgba(29, 78, 216, 0.25);
     }
 
-    .sg-brand-title {
+    .tp-brand-title {
       font-weight: 800;
-      font-size: 1.2rem;
+      font-size: 1.25rem;
       letter-spacing: -0.02em;
       color: #0f172a;
       line-height: 1.1;
       margin: 0;
     }
 
-    .sg-brand-subtitle {
+    .tp-brand-title span {
+      color: #f97316;
+    }
+
+    .tp-brand-subtitle {
       font-size: 0.72rem;
       font-weight: 600;
       color: #64748b;
@@ -115,8 +128,8 @@
       margin: 0;
     }
 
-    .nav-link-custom {
-      font-weight: 500;
+    .nav-link-tp {
+      font-weight: 600;
       font-size: 0.92rem;
       color: #334155 !important;
       padding: 8px 14px !important;
@@ -124,114 +137,191 @@
       transition: all 0.2s ease;
     }
 
-    .nav-link-custom:hover {
-      color: #0284c7 !important;
-      background: #f1f5f9;
+    .nav-link-tp:hover {
+      color: var(--tp-primary) !important;
+      background: #eff6ff;
     }
 
-    .nav-link-custom.active {
-      color: #0284c7 !important;
-      background: #e0f2fe;
-      font-weight: 600;
+    .nav-link-tp.active {
+      color: var(--tp-primary) !important;
+      background: #dbeafe;
     }
 
-    .btn-gradient-primary {
-      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+    /* Buttons */
+    .btn-tp-primary {
+      background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
       color: #ffffff !important;
       border: none;
       font-weight: 600;
       padding: 8px 20px;
       border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.28);
       transition: all 0.25s ease;
     }
 
-    .btn-gradient-primary:hover {
-      background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
-      box-shadow: 0 6px 16px rgba(2, 132, 199, 0.35);
+    .btn-tp-primary:hover {
+      background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);
+      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.38);
       transform: translateY(-1px);
     }
 
-    .btn-gradient-accent {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    .btn-tp-accent {
+      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
       color: #ffffff !important;
       border: none;
       font-weight: 600;
       padding: 8px 20px;
       border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.28);
       transition: all 0.25s ease;
     }
 
-    .btn-gradient-accent:hover {
-      background: linear-gradient(135deg, #059669 0%, #047857 100%);
-      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
+    .btn-tp-accent:hover {
+      background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+      box-shadow: 0 6px 18px rgba(249, 115, 22, 0.38);
       transform: translateY(-1px);
     }
 
-    .sg-footer {
+    /* Cards & Components */
+    .tp-card {
+      background: var(--tp-card-bg);
+      border: 1px solid var(--tp-border);
+      border-radius: 16px;
+      box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .tp-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+    }
+
+    .tp-header-banner {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: white;
+      padding: 38px 0;
+      border-bottom: 3px solid var(--tp-accent);
+      margin-bottom: 2rem;
+    }
+
+    /* Badges */
+    .badge-status {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .badge-Booked { background: #fef3c7; color: #b45309; }
+    .badge-Picked-Up { background: #e0f2fe; color: #0369a1; }
+    .badge-In-Transit { background: #e0e7ff; color: #4338ca; }
+    .badge-At-Branch { background: #f3e8ff; color: #7e22ce; }
+    .badge-Out-for-Delivery { background: #ffedd5; color: #c2410c; }
+    .badge-Delivered { background: #dcfce7; color: #15803d; }
+    .badge-Delayed { background: #fee2e2; color: #b91c1c; }
+    .badge-Cancelled { background: #f1f5f9; color: #64748b; }
+    .badge-Returned { background: #fce7f3; color: #be185d; }
+
+    /* Forms */
+    .form-control, .form-select {
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      padding: 10px 14px;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+      border-color: var(--tp-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    .input-group-text {
+      background-color: #f8fafc;
+      border-color: #cbd5e1;
+      border-radius: 10px 0 0 10px;
+    }
+
+    /* Tables */
+    .table-modern {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--tp-border);
+    }
+
+    .table-modern thead th {
+      background: #f8fafc;
+      color: #475569;
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--tp-border);
+    }
+
+    .table-modern tbody td {
+      padding: 14px 16px;
+      vertical-align: middle;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 0.92rem;
+    }
+
+    .table-modern tbody tr:hover {
+      background-color: #f8fafc;
+    }
+
+    /* Pulse Dot */
+    .pulse-dot-green {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      display: inline-block;
+      box-shadow: 0 0 0 rgba(16, 185, 129, 0.6);
+      animation: pulse-green 1.8s infinite;
+    }
+
+    @keyframes pulse-green {
+      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    /* Flash Alerts */
+    .flash-alert {
+      border-radius: 12px;
+      border: none;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Footer */
+    .tp-footer {
       margin-top: auto;
-      background: #0f172a;
+      background: #091224;
       color: #94a3b8;
-      padding: 45px 0 24px;
+      padding: 50px 0 25px;
       border-top: 1px solid rgba(255, 255, 255, 0.08);
     }
 
-    .sg-footer h5 {
+    .tp-footer h5 {
       color: #ffffff;
       font-weight: 700;
-      font-size: 1rem;
-      margin-bottom: 16px;
+      font-size: 1.05rem;
+      margin-bottom: 18px;
     }
 
-    .sg-footer a {
+    .tp-footer a {
       color: #94a3b8;
       text-decoration: none;
       transition: color 0.2s;
     }
 
-    .sg-footer a:hover {
-      color: #38bdf8;
-    }
-
-    .flash-alert {
-      border-radius: 10px;
-      border: none;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-    }
-
-    .live-pulse-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 0.78rem;
-      font-weight: 600;
-      background: rgba(16, 185, 129, 0.15);
-      color: #10b981;
-      border: 1px solid rgba(16, 185, 129, 0.3);
-    }
-
-    .pulse-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #10b981;
-      box-shadow: 0 0 0 rgba(16, 185, 129, 0.6);
-      animation: pulse-animation 1.8s infinite;
-    }
-
-    @keyframes pulse-animation {
-      0% {
-        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-      }
-      70% {
-        box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
-      }
-      100% {
-        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
-      }
+    .tp-footer a:hover {
+      color: var(--tp-accent);
     }
   </style>
 
@@ -241,107 +331,142 @@
 <body>
 
   <!-- Top Strip -->
-  <div class="sg-navbar-top">
+  <div class="tp-navbar-top">
     <div class="container d-flex justify-content-between align-items-center">
       <div class="d-flex align-items-center">
-        <span class="live-pulse-badge me-3 d-none d-sm-inline-flex">
-          <span class="pulse-dot"></span> SCADA TELEMETRY ACTIVE
+        <span class="me-3 d-none d-sm-inline-flex align-items-center gap-2">
+          <span class="pulse-dot-green"></span>
+          <span class="text-white fw-semibold">COURIER NETWORK ONLINE</span>
         </span>
-        <span class="me-3"><i class="bi bi-broadcast me-1 text-info"></i> Smart Grid Fault Detection & Localization</span>
-        <span class="d-none d-lg-inline text-muted">|</span>
-        <span class="d-none d-lg-inline ms-3"><i class="bi bi-lightning-charge me-1 text-warning"></i> AI Automated Anomaly Diagnostics</span>
+        <span class="me-3"><i class="bi bi-truck me-1 text-warning"></i> Nationwide Express Parcel Transit</span>
+        <span class="d-none d-lg-inline text-secondary">|</span>
+        <span class="d-none d-lg-inline ms-3"><i class="bi bi-shield-check me-1 text-success"></i> Secure & Insured Deliveries</span>
       </div>
+
       <div class="d-flex align-items-center gap-3">
         {% if request.session.username %}
           <span class="text-white small">
-            <i class="bi bi-person-circle me-1"></i> Logged in: <strong>{{ request.session.username }}</strong>
+            <i class="bi bi-person-circle me-1"></i> <strong>{{ request.session.username }}</strong>
             <span class="badge bg-primary ms-1">{{ request.session.usertype }}</span>
           </span>
           {% if request.session.usertype == 'Admin' %}
-            <a href="/admin_home" class="text-info small fw-semibold"><i class="bi bi-speedometer2 me-1"></i> Admin Console</a>
-          {% elif request.session.usertype == 'Grid Operator' %}
-            <a href="/operator_home" class="text-info small fw-semibold"><i class="bi bi-speedometer2 me-1"></i> Control Room</a>
-          {% elif request.session.usertype == 'Maintenance Technician' %}
-            <a href="/technician_home" class="text-info small fw-semibold"><i class="bi bi-speedometer2 me-1"></i> Field Portal</a>
+            <a href="/admin_home" class="text-warning small fw-semibold"><i class="bi bi-speedometer2 me-1"></i> Admin Panel</a>
+          {% elif request.session.usertype == 'Customer' %}
+            <a href="/customer_home" class="text-warning small fw-semibold"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a>
+          {% elif request.session.usertype == 'Delivery Agent' %}
+            <a href="/agent_home" class="text-warning small fw-semibold"><i class="bi bi-speedometer2 me-1"></i> Agent Portal</a>
           {% endif %}
-          <a href="/logout" class="text-danger small fw-semibold"><i class="bi bi-box-arrow-right"></i> Logout</a>
+          <a href="/logout" class="text-danger small fw-semibold"><i class="bi bi-box-arrow-right me-1"></i> Logout</a>
         {% else %}
-          <a href="/login"><i class="bi bi-box-arrow-in-right me-1"></i> Portal Login</a>
-          <a href="/operator_registration" class="d-none d-md-inline"><i class="bi bi-person-badge me-1"></i> Operator Register</a>
-          <a href="/technician_registration" class="d-none d-md-inline"><i class="bi bi-tools me-1"></i> Technician Register</a>
+          <a href="/public_track_parcel" class="fw-semibold"><i class="bi bi-geo-alt me-1 text-warning"></i> Quick Track</a>
+          <a href="/login"><i class="bi bi-box-arrow-in-right me-1"></i> Login</a>
+          <a href="/customer_registration" class="d-none d-md-inline"><i class="bi bi-person-plus me-1"></i> Register</a>
         {% endif %}
       </div>
     </div>
   </div>
 
   <!-- Main Navigation -->
-  <nav class="navbar navbar-expand-lg sg-navbar-main sticky-top">
+  <nav class="navbar navbar-expand-lg tp-navbar-main sticky-top">
     <div class="container">
-      <a class="sg-brand" href="/">
-        <div class="sg-brand-icon">
-          <i class="bi bi-lightning-charge-fill"></i>
+      <a class="tp-brand" href="/">
+        <div class="tp-brand-icon">
+          <i class="bi bi-box-seam-fill"></i>
         </div>
         <div>
-          <h1 class="sg-brand-title">SmartGrid AI</h1>
-          <p class="sg-brand-subtitle">Fault Detection & Grid Telemetry</p>
+          <h1 class="tp-brand-title">Track<span>Parcel</span></h1>
+          <p class="tp-brand-subtitle">Smart Courier & Freight System</p>
         </div>
       </a>
 
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sgMainNav">
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#tpMainNav">
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <div class="collapse navbar-collapse" id="sgMainNav">
+      <div class="collapse navbar-collapse" id="tpMainNav">
         <ul class="navbar-nav me-auto ms-lg-4">
           <li class="nav-item">
-            <a class="nav-link nav-link-custom" href="/"><i class="bi bi-house-door me-1"></i> Home</a>
+            <a class="nav-link nav-link-tp" href="/"><i class="bi bi-house-door me-1"></i> Home</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link nav-link-custom" href="/#features"><i class="bi bi-grid-3x3-gap me-1"></i> Grid Features</a>
+            <a class="nav-link nav-link-tp" href="/public_track_parcel"><i class="bi bi-search me-1"></i> Track Parcel</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link nav-link-custom" href="/#detection"><i class="bi bi-activity me-1"></i> Fault Detection AI</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link nav-link-custom" href="/#substations"><i class="bi bi-diagram-3 me-1"></i> Substations</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link nav-link-custom" href="/#contact"><i class="bi bi-headset me-1"></i> Support</a>
-          </li>
-          {% if request.session.usertype == 'Admin' %}
+
+          {% if request.session.username %}
+            {% if request.session.usertype == 'Admin' %}
+              <li class="nav-item">
+                <a class="nav-link nav-link-tp" href="/admin_home"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link nav-link-tp" href="/view_all_parcels"><i class="bi bi-boxes me-1"></i> All Parcels</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link nav-link-tp" href="/manage_branches"><i class="bi bi-building me-1"></i> Branches</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link nav-link-tp" href="/view_customers"><i class="bi bi-people me-1"></i> Customers</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link nav-link-tp" href="/view_agents"><i class="bi bi-bicycle me-1"></i> Delivery Agents</a>
+              </li>
+            {% elif request.session.usertype == 'Customer' %}
+              <li class="nav-item">
+                <a class="nav-link nav-link-tp" href="/customer_home"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link nav-link-tp" href="/book_parcel"><i class="bi bi-plus-circle me-1"></i> Book Parcel</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link nav-link-tp" href="/customer_parcels"><i class="bi bi-box-seam me-1"></i> My Parcels</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link nav-link-tp" href="/customer_profile"><i class="bi bi-person me-1"></i> Profile</a>
+              </li>
+            {% elif request.session.usertype == 'Delivery Agent' %}
+              <li class="nav-item">
+                <a class="nav-link nav-link-tp" href="/agent_home"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link nav-link-tp" href="/agent_profile"><i class="bi bi-person me-1"></i> Profile</a>
+              </li>
+            {% endif %}
+          {% else %}
             <li class="nav-item">
-              <a class="nav-link nav-link-custom active text-primary fw-bold" href="/admin_home"><i class="bi bi-shield-lock me-1"></i> Admin Console</a>
+              <a class="nav-link nav-link-tp" href="/#services"><i class="bi bi-lightning-charge me-1"></i> Delivery Services</a>
             </li>
-          {% elif request.session.usertype == 'Grid Operator' %}
             <li class="nav-item">
-              <a class="nav-link nav-link-custom active text-primary fw-bold" href="/operator_home"><i class="bi bi-cpu me-1"></i> Operator Room</a>
+              <a class="nav-link nav-link-tp" href="/#how-it-works"><i class="bi bi-diagram-3 me-1"></i> How It Works</a>
             </li>
-          {% elif request.session.usertype == 'Maintenance Technician' %}
             <li class="nav-item">
-              <a class="nav-link nav-link-custom active text-primary fw-bold" href="/technician_home"><i class="bi bi-tools me-1"></i> Technician Portal</a>
+              <a class="nav-link nav-link-tp" href="/#contact"><i class="bi bi-headset me-1"></i> Support</a>
             </li>
           {% endif %}
         </ul>
 
-        <div class="d-flex align-items-center gap-2">
+        <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
           {% if request.session.username %}
-            {% if request.session.usertype == 'Admin' %}
-              <a href="/admin_home" class="btn btn-outline-primary btn-sm"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a>
-            {% elif request.session.usertype == 'Grid Operator' %}
-              <a href="/operator_home" class="btn btn-outline-primary btn-sm"><i class="bi bi-speedometer2 me-1"></i> Control Panel</a>
-            {% elif request.session.usertype == 'Maintenance Technician' %}
-              <a href="/technician_home" class="btn btn-outline-primary btn-sm"><i class="bi bi-speedometer2 me-1"></i> Work Orders</a>
-            {% endif %}
-            <a href="/logout" class="btn btn-danger btn-sm" title="Logout"><i class="bi bi-box-arrow-right"></i></a>
+            <a href="/logout" class="btn btn-outline-danger btn-sm px-3 fw-semibold">
+              <i class="bi bi-box-arrow-right me-1"></i> Logout
+            </a>
           {% else %}
-            <a href="/login" class="btn btn-outline-primary btn-sm px-3 fw-semibold"><i class="bi bi-box-arrow-in-right me-1"></i> Login</a>
+            <a href="/login" class="btn btn-outline-primary btn-sm px-3 fw-semibold">
+              <i class="bi bi-box-arrow-in-right me-1"></i> Login
+            </a>
             <div class="dropdown">
-              <button class="btn btn-gradient-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+              <button class="btn btn-tp-accent btn-sm dropdown-toggle fw-semibold" type="button" data-bs-toggle="dropdown">
                 <i class="bi bi-person-plus me-1"></i> Register
               </button>
               <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
-                <li><a class="dropdown-item py-2" href="/operator_registration"><i class="bi bi-person-badge me-2 text-primary"></i> As Grid Operator</a></li>
-                <li><a class="dropdown-item py-2" href="/technician_registration"><i class="bi bi-tools me-2 text-success"></i> As Maintenance Technician</a></li>
+                <li>
+                  <a class="dropdown-item py-2" href="/customer_registration">
+                    <i class="bi bi-person me-2 text-primary"></i> As Customer
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item py-2" href="/agent_registration">
+                    <i class="bi bi-bicycle me-2 text-success"></i> As Delivery Agent
+                  </a>
+                </li>
               </ul>
             </div>
           {% endif %}
@@ -363,7 +488,7 @@
             {% else %}
               <i class="bi bi-info-circle-fill text-primary fs-5 me-2"></i>
             {% endif %}
-            <div>{{ message }}</div>
+            <div class="fw-semibold">{{ message }}</div>
           </div>
           <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
@@ -378,51 +503,57 @@
   </main>
 
   <!-- Footer -->
-  <footer class="sg-footer">
+  <footer class="tp-footer">
     <div class="container">
       <div class="row g-4 mb-4">
         <div class="col-lg-4 col-md-6">
           <div class="d-flex align-items-center gap-2 mb-3">
-            <div class="sg-brand-icon" style="width: 36px; height: 36px; font-size: 1.1rem;">
-              <i class="bi bi-lightning-charge-fill"></i>
+            <div class="tp-brand-icon" style="width: 36px; height: 36px; font-size: 1.1rem;">
+              <i class="bi bi-box-seam-fill"></i>
             </div>
-            <h5 class="mb-0 text-white">SmartGrid AI</h5>
+            <h5 class="mb-0 text-white">Track<span class="text-warning">Parcel</span></h5>
           </div>
           <p class="small text-secondary">
-            Advanced Smart Grid Fault Detection & Telemetry Platform. Empowering grid operators and field technicians with predictive machine learning, high-voltage line monitoring, and millisecond fault localization.
+            Next-generation parcel delivery and courier tracking ecosystem. Connecting senders, branches, and delivery agents with real-time transit status, safe handling, and guaranteed delivery times.
           </p>
-          <div class="d-flex gap-3 text-secondary mt-3">
-            <span class="badge bg-dark border border-secondary text-info"><i class="bi bi-cpu me-1"></i> AI Neural Predictor</span>
-            <span class="badge bg-dark border border-secondary text-success"><i class="bi bi-shield-check me-1"></i> 99.98% Grid Reliability</span>
+          <div class="d-flex gap-2 mt-3">
+            <span class="badge bg-dark border border-secondary text-info"><i class="bi bi-shield-check me-1"></i> 100% Insured</span>
+            <span class="badge bg-dark border border-secondary text-success"><i class="bi bi-lightning-charge me-1"></i> Same Day Express</span>
           </div>
         </div>
+
         <div class="col-lg-2 col-md-6">
-          <h5>Quick Portals</h5>
+          <h5>Quick Links</h5>
           <ul class="list-unstyled small">
-            <li class="mb-2"><a href="/login"><i class="bi bi-chevron-right me-1"></i> Secure Login</a></li>
-            <li class="mb-2"><a href="/operator_registration"><i class="bi bi-chevron-right me-1"></i> Operator Register</a></li>
-            <li class="mb-2"><a href="/technician_registration"><i class="bi bi-chevron-right me-1"></i> Technician Register</a></li>
-            <li class="mb-2"><a href="/admin_home"><i class="bi bi-chevron-right me-1"></i> Admin Console</a></li>
+            <li class="mb-2"><a href="/"><i class="bi bi-chevron-right me-1"></i> Home</a></li>
+            <li class="mb-2"><a href="/public_track_parcel"><i class="bi bi-chevron-right me-1"></i> Track Parcel</a></li>
+            <li class="mb-2"><a href="/login"><i class="bi bi-chevron-right me-1"></i> Sign In</a></li>
+            <li class="mb-2"><a href="/customer_registration"><i class="bi bi-chevron-right me-1"></i> Customer Register</a></li>
+            <li class="mb-2"><a href="/agent_registration"><i class="bi bi-chevron-right me-1"></i> Agent Register</a></li>
           </ul>
         </div>
+
         <div class="col-lg-3 col-md-6">
-          <h5>Fault Analytics</h5>
+          <h5>Courier Services</h5>
           <ul class="list-unstyled small">
-            <li class="mb-2"><a href="#"><i class="bi bi-check2 text-success me-1"></i> Symmetrical & Asymmetrical Faults</a></li>
-            <li class="mb-2"><a href="#"><i class="bi bi-check2 text-success me-1"></i> Line-to-Ground (L-G) Detection</a></li>
-            <li class="mb-2"><a href="#"><i class="bi bi-check2 text-success me-1"></i> Transformer Thermal Overload</a></li>
-            <li class="mb-2"><a href="#"><i class="bi bi-check2 text-success me-1"></i> Transient Frequency Instability</a></li>
+            <li class="mb-2"><span class="text-light"><i class="bi bi-check2 text-success me-1"></i> Standard Surface Cargo (₹50)</span></li>
+            <li class="mb-2"><span class="text-light"><i class="bi bi-check2 text-success me-1"></i> Air Express Courier (₹100)</span></li>
+            <li class="mb-2"><span class="text-light"><i class="bi bi-check2 text-success me-1"></i> Same-Day Hyperlocal (₹150)</span></li>
+            <li class="mb-2"><span class="text-light"><i class="bi bi-check2 text-success me-1"></i> Real-time Branch Transit Tracking</span></li>
           </ul>
         </div>
+
         <div class="col-lg-3 col-md-6">
-          <h5>Grid Dispatch & Support</h5>
-          <p class="small mb-2"><i class="bi bi-geo-alt me-2 text-primary"></i> Central Grid Dispatch & SCADA Center</p>
-          <p class="small mb-2"><i class="bi bi-envelope me-2 text-primary"></i> control@smartgrid-dispatch.org</p>
-          <p class="small mb-2"><i class="bi bi-telephone me-2 text-primary"></i> 24/7 Grid Hotline: +1 (800) 555-GRID</p>
+          <h5>Dispatch & Helpline</h5>
+          <p class="small mb-2"><i class="bi bi-geo-alt me-2 text-warning"></i> National Hub Logistics Headquarters</p>
+          <p class="small mb-2"><i class="bi bi-envelope me-2 text-warning"></i> support@trackparcel-express.com</p>
+          <p class="small mb-2"><i class="bi bi-telephone-fill me-2 text-warning"></i> Toll-Free: 1800-PARCEL-24</p>
+          <p class="small text-muted mb-0"><i class="bi bi-clock me-2 text-warning"></i> Operations: 24/7/365</p>
         </div>
       </div>
+
       <div class="pt-3 border-top border-secondary text-center small text-secondary">
-        <p class="mb-0">© 2026 Smart Grid Fault Detection & Localization System. All Rights Reserved.</p>
+        <p class="mb-0">© 2026 TrackParcel Courier & Delivery Management System. All Rights Reserved.</p>
       </div>
     </div>
   </footer>
