@@ -1,0 +1,275 @@
+{% extends 'commen.html' %}
+{% load static %}
+
+{% block title %}TrackParcel | Live Consignment Tracking{% endblock %}
+
+{% block extra_css %}
+<style>
+  .tracking-stepper {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    margin: 40px 0 20px;
+  }
+
+  .tracking-stepper::before {
+    content: '';
+    position: absolute;
+    top: 22px;
+    left: 40px;
+    right: 40px;
+    height: 4px;
+    background: #e2e8f0;
+    z-index: 1;
+  }
+
+  .step-item {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    flex: 1;
+  }
+
+  .step-icon-bubble {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: #94a3b8;
+    border: 3px solid #cbd5e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    margin: 0 auto 10px;
+    transition: all 0.3s ease;
+  }
+
+  .step-item.completed .step-icon-bubble {
+    background: #10b981;
+    border-color: #059669;
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+  }
+
+  .step-item.active .step-icon-bubble {
+    background: #1d4ed8;
+    border-color: #3b82f6;
+    color: white;
+    box-shadow: 0 4px 14px rgba(29, 78, 216, 0.4);
+    animation: pulse-step 1.5s infinite;
+  }
+
+  @keyframes pulse-step {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+  }
+
+  .step-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #475569;
+  }
+
+  .step-item.completed .step-title,
+  .step-item.active .step-title {
+    color: #0f172a;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="tp-header-banner">
+  <div class="container text-center">
+    <h2 class="display-6 fw-bold mb-1">Live Parcel Tracking</h2>
+    <p class="text-white-50 mb-0">Check the instant checkpoint progress of your consignment across our branch network</p>
+  </div>
+</div>
+
+<div class="container py-4 mb-5">
+  <!-- Search Bar Card -->
+  <div class="row justify-content-center mb-5">
+    <div class="col-lg-8">
+      <div class="tp-card p-4 p-md-4 shadow-sm border-2">
+        <form action="/public_track_parcel" method="POST">
+          {% csrf_token %}
+          <label class="form-label fw-bold text-dark mb-2">
+            <i class="bi bi-upc-scan text-primary me-2"></i> Enter Consignment Tracking Number
+          </label>
+          <div class="input-group">
+            <input type="text" name="tracking_id" class="form-control form-control-lg text-uppercase fw-bold" placeholder="e.g. CR9D0B82A1" value="{{ parcel.tracking_id|default:'' }}" required>
+            <button class="btn btn-tp-primary px-4 fw-bold" type="submit">
+              <i class="bi bi-search me-1"></i> Track Parcel
+            </button>
+          </div>
+          <small class="text-muted mt-2 d-block">
+            <i class="bi bi-info-circle me-1"></i> Tracking numbers start with 'CR' followed by alphanumeric code.
+          </small>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  {% if parcel %}
+    <!-- Tracking Result Box -->
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <div class="tp-card p-4 p-md-5">
+          <!-- Top Info Bar -->
+          <div class="d-flex flex-wrap justify-content-between align-items-center pb-3 border-bottom mb-4 gap-3">
+            <div>
+              <span class="text-muted small text-uppercase fw-semibold">Tracking Number</span>
+              <h3 class="fw-bold text-primary mb-0">{{ parcel.tracking_id }}</h3>
+              <small class="text-muted">Booked on: {{ parcel.booking_date|date:"d M Y, h:i A" }}</small>
+            </div>
+            <div class="text-end">
+              <span class="text-muted small text-uppercase fw-semibold d-block">Current Status</span>
+              <span class="badge-status badge-{{ parcel.status|slugify|title }} fs-6 px-3 py-2">
+                {{ parcel.status }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Visual Stepper -->
+          {% if parcel.status != 'Cancelled' and parcel.status != 'Returned' %}
+            <div class="tracking-stepper d-none d-md-flex">
+              <!-- Booked -->
+              <div class="step-item {% if parcel.status == 'Booked' %}active{% else %}completed{% endif %}">
+                <div class="step-icon-bubble">
+                  <i class="bi bi-receipt"></i>
+                </div>
+                <div class="step-title">Booked</div>
+              </div>
+
+              <!-- Picked Up -->
+              <div class="step-item {% if parcel.status == 'Picked Up' %}active{% elif parcel.status in 'In Transit,At Branch,Out for Delivery,Delivered' %}completed{% endif %}">
+                <div class="step-icon-bubble">
+                  <i class="bi bi-box-arrow-up"></i>
+                </div>
+                <div class="step-title">Picked Up</div>
+              </div>
+
+              <!-- In Transit -->
+              <div class="step-item {% if parcel.status == 'In Transit' %}active{% elif parcel.status in 'At Branch,Out for Delivery,Delivered' %}completed{% endif %}">
+                <div class="step-icon-bubble">
+                  <i class="bi bi-truck"></i>
+                </div>
+                <div class="step-title">In Transit</div>
+              </div>
+
+              <!-- At Branch -->
+              <div class="step-item {% if parcel.status == 'At Branch' %}active{% elif parcel.status in 'Out for Delivery,Delivered' %}completed{% endif %}">
+                <div class="step-icon-bubble">
+                  <i class="bi bi-building"></i>
+                </div>
+                <div class="step-title">At Branch</div>
+              </div>
+
+              <!-- Out for Delivery -->
+              <div class="step-item {% if parcel.status == 'Out for Delivery' %}active{% elif parcel.status == 'Delivered' %}completed{% endif %}">
+                <div class="step-icon-bubble">
+                  <i class="bi bi-bicycle"></i>
+                </div>
+                <div class="step-title">Out for Delivery</div>
+              </div>
+
+              <!-- Delivered -->
+              <div class="step-item {% if parcel.status == 'Delivered' %}completed{% endif %}">
+                <div class="step-icon-bubble">
+                  <i class="bi bi-check-circle"></i>
+                </div>
+                <div class="step-title">Delivered</div>
+              </div>
+            </div>
+          {% else %}
+            <div class="alert alert-warning py-3 text-center my-3">
+              <i class="bi bi-exclamation-triangle-fill fs-5 me-2"></i>
+              This parcel status is currently <strong>{{ parcel.status }}</strong>.
+            </div>
+          {% endif %}
+
+          <!-- Consignment Details Grid -->
+          <div class="row g-4 mt-2">
+            <div class="col-md-6">
+              <div class="p-4 rounded-3 bg-light border h-100">
+                <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-geo-alt-fill text-danger me-2"></i> Route Information</h5>
+                <div class="d-flex justify-content-between mb-2">
+                  <span class="text-muted small">Origin Source:</span>
+                  <span class="fw-bold text-dark">{{ parcel.source }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                  <span class="text-muted small">Final Destination:</span>
+                  <span class="fw-bold text-dark">{{ parcel.destination }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                  <span class="text-muted small">Current Branch:</span>
+                  <span class="fw-bold text-primary">
+                    {% if parcel.current_branch %}
+                      {{ parcel.current_branch.branch_name }} ({{ parcel.current_branch.location }})
+                    {% else %}
+                      In Central Sorting / Transit
+                    {% endif %}
+                  </span>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span class="text-muted small">Distance:</span>
+                  <span class="fw-bold text-dark">{{ parcel.distance_km }} km</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="p-4 rounded-3 bg-light border h-100">
+                <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-box-seam text-primary me-2"></i> Package Specifications</h5>
+                <div class="d-flex justify-content-between mb-2">
+                  <span class="text-muted small">Parcel Type:</span>
+                  <span class="fw-bold text-dark">{{ parcel.parcel_type }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                  <span class="text-muted small">Total Weight:</span>
+                  <span class="fw-bold text-dark">{{ parcel.weight }} kg</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                  <span class="text-muted small">Delivery Speed:</span>
+                  <span class="badge bg-primary">{{ parcel.delivery_type }}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span class="text-muted small">Delivery Charges:</span>
+                  <span class="fw-bold text-success">₹{{ parcel.delivery_charge }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sender & Receiver Summary -->
+            <div class="col-md-6">
+              <div class="p-3 rounded-3 border bg-white">
+                <h6 class="fw-bold text-secondary text-uppercase small mb-2"><i class="bi bi-person me-1"></i> Sender Info</h6>
+                <div class="fw-bold text-dark">{{ parcel.sender_name }}</div>
+                <div class="small text-muted">{{ parcel.sender_phone }}</div>
+                <div class="small text-secondary text-truncate">{{ parcel.sender_address }}</div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="p-3 rounded-3 border bg-white">
+                <h6 class="fw-bold text-secondary text-uppercase small mb-2"><i class="bi bi-person-check me-1"></i> Recipient Info</h6>
+                <div class="fw-bold text-dark">{{ parcel.receiver_name }}</div>
+                <div class="small text-muted">{{ parcel.receiver_phone }}</div>
+                <div class="small text-secondary text-truncate">{{ parcel.receiver_address }}</div>
+              </div>
+            </div>
+          </div>
+
+          {% if parcel.parcel_description %}
+            <div class="mt-4 p-3 bg-light rounded-3 border small">
+              <strong>Consignment Notes:</strong> {{ parcel.parcel_description }}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
+
