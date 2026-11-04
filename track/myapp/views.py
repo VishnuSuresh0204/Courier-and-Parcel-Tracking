@@ -651,10 +651,12 @@ def admin_parcel_detail(request, parcel_id):
         id=parcel_id
     )
 
+    branches = CourierBranch.objects.filter(is_active=True)
+
     return render(
         request,
         'ADMIN/parcel_detail.html',
-        {'parcel': parcel}
+        {'parcel': parcel, 'branches': branches}
     )
 
 
