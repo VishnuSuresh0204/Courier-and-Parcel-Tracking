@@ -1,4 +1,4 @@
-{% extends 'commen.html' %}
+{% extends 'ADMIN/commen.html' %}
 {% load static %}
 
 {% block title %}TrackParcel | Admin Parcel Detail - {{ parcel.tracking_id }}{% endblock %}
@@ -9,17 +9,22 @@
     <div>
       <span class="badge bg-warning text-dark fw-bold mb-1">CONSIGNMENT DISPATCH MANAGER</span>
       <h2 class="display-6 fw-bold mb-0">Consignment #{{ parcel.tracking_id }}</h2>
-      <p class="text-white-50 mb-0">Update transit status, assign physical sorting branches, or handle cancellation</p>
+      <p class="text-white-50 mb-0">Manage transit checkpoints, view assignment runs, and review timeline history</p>
     </div>
-    <a href="/view_all_parcels" class="btn btn-outline-light btn-sm fw-semibold">
-      <i class="bi bi-arrow-left me-1"></i> Back to Parcels
-    </a>
+    <div class="d-flex gap-2">
+      <a href="/assign_parcel/{{ parcel.id }}/" class="btn btn-warning btn-sm fw-bold">
+        <i class="bi bi-person-check me-1"></i> Assign Courier
+      </a>
+      <a href="/view_all_parcels/" class="btn btn-outline-light btn-sm fw-semibold">
+        <i class="bi bi-arrow-left me-1"></i> Back to Parcels
+      </a>
+    </div>
   </div>
 </div>
 
 <div class="container py-4 mb-5">
   <div class="row g-4">
-    <!-- Left Column: Parcel Details -->
+    <!-- Left Column: Parcel Details & Route -->
     <div class="col-lg-7">
       <div class="tp-card p-4 p-md-5 mb-4">
         <div class="d-flex justify-content-between align-items-center pb-3 border-bottom mb-4">
@@ -79,7 +84,7 @@
           <table class="table table-bordered small mb-0">
             <tbody>
               <tr>
-                <th class="bg-light w-50">Parcel Type</th>
+                <th class="bg-light w-50">Parcel Category</th>
                 <td>{{ parcel.parcel_type }}</td>
               </tr>
               <tr>
@@ -104,7 +109,7 @@
                   {% if parcel.current_branch %}
                     <span class="fw-bold text-primary">{{ parcel.current_branch.branch_name }}</span> ({{ parcel.current_branch.location }})
                   {% else %}
-                    <span class="text-muted">Not assigned to specific branch</span>
+                    <span class="text-muted">In transit / Unassigned branch</span>
                   {% endif %}
                 </td>
               </tr>
@@ -118,63 +123,83 @@
           </div>
         {% endif %}
       </div>
+
+      <!-- Tracking Event History -->
+      <div class="tp-card p-4">
+        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-clock-history text-secondary me-2"></i> Checkpoint History Timeline</h5>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle small mb-0">
+            <thead>
+              <tr class="table-light">
+                <th>Timestamp</th>
+                <th>Status</th>
+                <th>Location</th>
+                <th>Remarks</th>
+                <th>Updated By</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for h in history %}
+                <tr>
+                  <td class="text-muted">{{ h.updated_at|date:"d M, h:i A" }}</td>
+                  <td><span class="badge-status badge-{{ h.status|slugify|title }}" style="font-size: 0.72rem;">{{ h.status }}</span></td>
+                  <td class="fw-semibold">{{ h.location }}</td>
+                  <td class="text-secondary">{{ h.description }}</td>
+                  <td><span class="badge bg-light text-dark border">{{ h.updated_by.username|default:'System' }}</span></td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="5" class="text-center text-muted py-3">No event logs recorded for this consignment.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
-    <!-- Right Column: Operations Actions -->
+    <!-- Right Column: Operations Actions & Assignment Status -->
     <div class="col-lg-5">
-      <!-- 1. Update Status Form -->
+      <!-- Assigned Delivery Agent Card -->
       <div class="tp-card p-4 mb-4">
-        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-arrow-repeat text-primary me-2"></i> Update Parcel Status</h5>
-        <form method="POST" action="/update_parcel_status/{{ parcel.id }}">
-          {% csrf_token %}
-          <div class="mb-3">
-            <label class="form-label small fw-semibold">Select Status Milestone</label>
-            <select name="status" class="form-select" required>
-              <option value="Booked" {% if parcel.status == 'Booked' %}selected{% endif %}>Booked</option>
-              <option value="Picked Up" {% if parcel.status == 'Picked Up' %}selected{% endif %}>Picked Up</option>
-              <option value="In Transit" {% if parcel.status == 'In Transit' %}selected{% endif %}>In Transit</option>
-              <option value="At Branch" {% if parcel.status == 'At Branch' %}selected{% endif %}>At Branch</option>
-              <option value="Out for Delivery" {% if parcel.status == 'Out for Delivery' %}selected{% endif %}>Out for Delivery</option>
-              <option value="Delivered" {% if parcel.status == 'Delivered' %}selected{% endif %}>Delivered</option>
-              <option value="Delayed" {% if parcel.status == 'Delayed' %}selected{% endif %}>Delayed</option>
-              <option value="Cancelled" {% if parcel.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
-              <option value="Returned" {% if parcel.status == 'Returned' %}selected{% endif %}>Returned</option>
-            </select>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold text-dark mb-0"><i class="bi bi-bicycle text-success me-2"></i> Delivery Agent</h5>
+          <a href="/assign_parcel/{{ parcel.id }}/" class="btn btn-sm btn-outline-warning text-dark fw-bold">
+            <i class="bi bi-arrow-repeat me-1"></i> Assign / Reassign
+          </a>
+        </div>
+
+        {% if assignments %}
+          {% for asgn in assignments %}
+            <div class="p-3 border rounded-3 mb-2 {% if asgn.assignment_status == 'Assigned' or asgn.assignment_status == 'In Progress' %}bg-light border-primary{% endif %}">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="fw-bold text-dark">{{ asgn.delivery_agent.name|default:'Unassigned' }}</span>
+                <span class="badge {% if asgn.assignment_status == 'Completed' %}bg-success{% elif asgn.assignment_status == 'Cancelled' %}bg-secondary{% else %}bg-primary{% endif %}">
+                  {{ asgn.assignment_status }}
+                </span>
+              </div>
+              <div class="small text-muted">Badge: {{ asgn.delivery_agent.employee_id }} &bull; {{ asgn.delivery_agent.phone }}</div>
+              <div class="small text-secondary">{{ asgn.delivery_agent.vehicle_type }} ({{ asgn.delivery_agent.vehicle_number }})</div>
+              <div class="small text-muted mt-2 pt-1 border-top">Assigned on: {{ asgn.assigned_at|date:"d M Y, h:i A" }}</div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="text-center py-4 bg-light rounded-3 border">
+            <i class="bi bi-person-x fs-1 text-muted d-block mb-1"></i>
+            <span class="text-muted small">No delivery agent assigned to this consignment yet.</span>
+            <div class="mt-3">
+              <a href="/assign_parcel/{{ parcel.id }}/" class="btn btn-tp-primary btn-sm fw-bold">
+                <i class="bi bi-plus-circle me-1"></i> Assign Agent Now
+              </a>
+            </div>
           </div>
-          <button type="submit" class="btn btn-tp-primary w-100 fw-bold">
-            <i class="bi bi-check2-circle me-1"></i> Save Status Change
-          </button>
-        </form>
+        {% endif %}
       </div>
 
-      <!-- 2. Assign / Update Current Branch Hub -->
-      <div class="tp-card p-4 mb-4">
-        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-building text-info me-2"></i> Assign Current Hub</h5>
-        <form method="POST" action="/update_parcel_branch/{{ parcel.id }}">
-          {% csrf_token %}
-          <div class="mb-3">
-            <label class="form-label small fw-semibold">Transit Branch Hub</label>
-            <select name="branch_id" class="form-select">
-              <option value="">-- Remove / Central Sorting Transit --</option>
-              {% for b in branches %}
-                <option value="{{ b.id }}" {% if parcel.current_branch and parcel.current_branch.id == b.id %}selected{% endif %}>
-                  {{ b.branch_name }} ({{ b.location }}) - {{ b.branch_code }}
-                </option>
-              {% endfor %}
-            </select>
-          </div>
-          <button type="submit" class="btn btn-outline-info text-dark w-100 fw-bold">
-            <i class="bi bi-geo-alt-fill text-info me-1"></i> Update Branch Location
-          </button>
-        </form>
-      </div>
-
-      <!-- 3. Cancel Parcel Option -->
-      {% if parcel.status != 'Delivered' and parcel.status != 'Cancelled' %}
+      <!-- Emergency Parcel Cancellation -->
+      {% if parcel.status != 'Delivered' and parcel.status != 'Cancelled' and parcel.status != 'Returned' %}
         <div class="tp-card p-4 border-danger border-opacity-25 bg-danger bg-opacity-10">
-          <h6 class="fw-bold text-danger mb-2"><i class="bi bi-x-octagon-fill me-1"></i> Emergency Parcel Cancellation</h6>
-          <p class="small text-secondary mb-3">If this consignment was flagged or requested for recall by the sender, mark it cancelled.</p>
-          <form method="POST" action="/cancel_parcel/{{ parcel.id }}" onsubmit="return confirm('Are you sure you want to cancel this consignment?');">
+          <h6 class="fw-bold text-danger mb-2"><i class="bi bi-x-octagon-fill me-1"></i> Cancel Consignment</h6>
+          <p class="small text-secondary mb-3">Cancelling this consignment will immediately release any assigned delivery couriers and record a cancellation log.</p>
+          <form method="POST" action="/cancel_parcel/{{ parcel.id }}/" onsubmit="return confirm('Are you sure you want to cancel this consignment?');">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger w-100 fw-bold">
               <i class="bi bi-x-circle me-1"></i> Cancel Consignment
@@ -186,4 +211,3 @@
   </div>
 </div>
 {% endblock %}
-
