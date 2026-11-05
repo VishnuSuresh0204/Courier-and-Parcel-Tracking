@@ -70,7 +70,8 @@ urlpatterns = [
     # ADMIN - PARCEL ASSIGNMENT
     # ==========================================
 
-    path('assign_parcel/<int:parcel_id>/', views.assign_parcel, name='assign_parcel'),
+    path('assign_parcel/', views.assign_parcel, name='assign_parcel'),
+    path('assign_parcel/<int:parcel_id>/', views.assign_parcel, name='assign_parcel_id'),
     path('delivery_assignments/', views.delivery_assignments, name='delivery_assignments'),
     path('reassign_parcel/<int:assignment_id>/', views.reassign_parcel, name='reassign_parcel'),
 
