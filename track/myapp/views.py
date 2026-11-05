@@ -1009,7 +1009,7 @@ def customer_cancel_parcel(request, parcel_id):
 # 24. ASSIGN PARCEL TO DELIVERY AGENT - ADMIN
 # ==========================================
 
-def assign_parcel(request):
+def assign_parcel(request, parcel_id=None):
 
     if 'userid' not in request.session:
         return redirect('/login')
