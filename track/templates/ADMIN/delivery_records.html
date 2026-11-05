@@ -1,0 +1,101 @@
+{% extends 'ADMIN/commen.html' %}
+{% load static %}
+
+{% block title %}TrackParcel | Delivery Records & Proofs{% endblock %}
+
+{% block content %}
+<div class="tp-header-banner">
+  <div class="container d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <div>
+      <span class="badge bg-warning text-dark fw-bold mb-1">AUDIT & PROOFS</span>
+      <h2 class="display-6 fw-bold mb-0">Delivery Records & POD Archive</h2>
+      <p class="text-white-50 mb-0">Proof of delivery (POD) logs, receiver signatures/photos, and failure remarks</p>
+    </div>
+    <a href="/admin_home/" class="btn btn-outline-light btn-sm fw-semibold">
+      <i class="bi bi-arrow-left me-1"></i> Dashboard
+    </a>
+  </div>
+</div>
+
+<div class="container py-4 mb-5">
+  <div class="tp-card p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="fw-bold mb-0 text-dark">
+        <i class="bi bi-receipt-cutoff text-primary me-2"></i> Completed & Attempted Deliveries ({{ records|length }})
+      </h5>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-modern align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Tracking ID</th>
+            <th>Delivery Agent</th>
+            <th>Receiver Details</th>
+            <th>Outcome Status</th>
+            <th>Proof of Delivery</th>
+            <th>Agent Remarks</th>
+            <th>Recorded Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in records %}
+            <tr>
+              <td>
+                <a href="/admin_parcel_detail/{{ r.parcel.id }}/" class="fw-bold text-primary font-monospace text-decoration-none">
+                  {{ r.parcel.tracking_id }}
+                </a>
+                <div class="small text-muted">{{ r.parcel.source }} &rarr; {{ r.parcel.destination }}</div>
+              </td>
+              <td>
+                {% if r.delivery_agent %}
+                  <div class="fw-bold text-dark">{{ r.delivery_agent.name }}</div>
+                  <div class="small text-muted">{{ r.delivery_agent.employee_id }}</div>
+                {% else %}
+                  <span class="text-muted">Unspecified Agent</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="fw-bold text-dark">{{ r.receiver_name }}</div>
+                <div class="small text-muted"><i class="bi bi-telephone me-1"></i> {{ r.receiver_phone }}</div>
+              </td>
+              <td>
+                {% if r.delivery_status == 'Delivered' %}
+                  <span class="badge bg-success px-3 py-2"><i class="bi bi-check-circle-fill me-1"></i> Delivered</span>
+                {% else %}
+                  <span class="badge bg-danger px-3 py-2"><i class="bi bi-x-circle-fill me-1"></i> Failed</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if r.delivery_proof %}
+                  <a href="{{ r.delivery_proof.url }}" target="_blank" class="btn btn-sm btn-outline-primary py-1 px-2">
+                    <i class="bi bi-image me-1"></i> View Photo
+                  </a>
+                {% else %}
+                  <span class="small text-muted">No proof uploaded</span>
+                {% endif %}
+              </td>
+              <td style="max-width: 250px;">
+                <div class="small text-secondary text-truncate" title="{{ r.delivery_remarks }}">
+                  {{ r.delivery_remarks|default:'None' }}
+                </div>
+              </td>
+              <td>
+                <span class="small text-muted">{{ r.delivery_date|date:"d M Y, h:i A"|default:r.created_at|date:"d M Y, h:i A" }}</span>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" class="text-center py-5 text-muted">
+                <i class="bi bi-inbox fs-1 d-block text-secondary mb-2"></i>
+                No delivery completion records logged yet.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
