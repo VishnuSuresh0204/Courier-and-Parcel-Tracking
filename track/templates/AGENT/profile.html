@@ -1,4 +1,4 @@
-{% extends 'commen.html' %}
+{% extends 'AGENT/commen.html' %}
 {% load static %}
 
 {% block title %}TrackParcel | Delivery Agent Profile{% endblock %}
@@ -30,7 +30,7 @@
           </div>
         </div>
 
-        <form method="POST" action="/agent_profile" enctype="multipart/form-data">
+        <form method="POST" action="/agent_profile/" enctype="multipart/form-data">
           {% csrf_token %}
           <div class="row g-3">
             <div class="col-md-6">
@@ -70,7 +70,7 @@
           </div>
 
           <div class="d-flex justify-content-between align-items-center pt-4 border-top mt-4">
-            <a href="/agent_home" class="btn btn-outline-secondary">
+            <a href="/agent_home/" class="btn btn-outline-secondary">
               <i class="bi bi-arrow-left me-1"></i> Dashboard
             </a>
             <button type="submit" class="btn btn-tp-primary px-4 fw-bold">
