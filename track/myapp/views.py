@@ -2,6 +2,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
+from django.db import transaction
+from django.utils import timezone
 
 from .models import *
 
@@ -43,7 +45,6 @@ def login(request):
             request.session['username'] = user.username
 
             if user.is_superuser:
-
                 request.session['usertype'] = 'Admin'
                 return redirect('/admin_home')
 
@@ -58,7 +59,6 @@ def login(request):
             else:
                 auth_logout(request)
                 request.session.flush()
-
                 messages.error(request, 'Invalid user type.')
                 return redirect('/login')
 
@@ -99,40 +99,42 @@ def customer_registration(request):
 
         profile_image = request.FILES.get('profile_image')
 
-        if password != confirm_password:
-
-            messages.error(request, 'Password does not match.')
-            return redirect('/customer_registration')
-
-        if Login.objects.filter(username=username).exists():
-
-            messages.error(request, 'Username already exists.')
-            return redirect('/customer_registration')
-
         if not all([name, username, email, phone, address, password]):
-
             messages.error(request, 'Please fill all required fields.')
             return redirect('/customer_registration')
 
-        user = Login.objects.create_user(
-            username=username,
-            email=email,
-            password=password,
-            user_type='Customer',
-            view_pass=password
-        )
+        if password != confirm_password:
+            messages.error(request, 'Passwords do not match.')
+            return redirect('/customer_registration')
 
-        CustomerRegistration.objects.create(
-            user=user,
-            name=name,
-            email=email,
-            phone=phone,
-            address=address,
-            profile_image=profile_image
-        )
+        if Login.objects.filter(username=username).exists():
+            messages.error(request, 'Username already exists.')
+            return redirect('/customer_registration')
 
-        messages.success(request, 'Registration completed successfully.')
+        if Login.objects.filter(email=email).exists():
+            messages.error(request, 'Email already exists.')
+            return redirect('/customer_registration')
 
+        with transaction.atomic():
+
+            user = Login.objects.create_user(
+                username=username,
+                email=email,
+                password=password,
+                user_type='Customer',
+                view_pass=''
+            )
+
+            CustomerRegistration.objects.create(
+                user=user,
+                name=name,
+                email=email,
+                phone=phone,
+                address=address,
+                profile_image=profile_image
+            )
+
+        messages.success(request, 'Customer registration completed successfully.')
         return redirect('/login')
 
     return render(request, 'customer_registration.html')
@@ -162,29 +164,29 @@ def agent_registration(request):
 
         profile_image = request.FILES.get('profile_image')
 
-        if password != confirm_password:
+        if not all([
+            name, username, email, phone, address,
+            employee_id, vehicle_number, vehicle_type, password
+        ]):
+            messages.error(request, 'Please fill all required fields.')
+            return redirect('/agent_registration')
 
-            messages.error(request, 'Password does not match.')
+        if password != confirm_password:
+            messages.error(request, 'Passwords do not match.')
             return redirect('/agent_registration')
 
         if Login.objects.filter(username=username).exists():
-
             messages.error(request, 'Username already exists.')
+            return redirect('/agent_registration')
+
+        if Login.objects.filter(email=email).exists():
+            messages.error(request, 'Email already exists.')
             return redirect('/agent_registration')
 
         if DeliveryAgentRegistration.objects.filter(
             employee_id=employee_id
         ).exists():
-
             messages.error(request, 'Employee ID already exists.')
-            return redirect('/agent_registration')
-
-        if not all([
-            name, username, email, phone, address,
-            employee_id, vehicle_number, vehicle_type, password
-        ]):
-
-            messages.error(request, 'Please fill all required fields.')
             return redirect('/agent_registration')
 
         try:
@@ -194,33 +196,33 @@ def agent_registration(request):
                 raise ValueError
 
         except (ValueError, TypeError):
-
             messages.error(request, 'Invalid experience years.')
             return redirect('/agent_registration')
 
-        user = Login.objects.create_user(
-            username=username,
-            email=email,
-            password=password,
-            user_type='Delivery Agent',
-            view_pass=password
-        )
+        with transaction.atomic():
 
-        DeliveryAgentRegistration.objects.create(
-            user=user,
-            name=name,
-            email=email,
-            phone=phone,
-            address=address,
-            employee_id=employee_id,
-            vehicle_number=vehicle_number,
-            vehicle_type=vehicle_type,
-            experience_years=experience_years,
-            profile_image=profile_image
-        )
+            user = Login.objects.create_user(
+                username=username,
+                email=email,
+                password=password,
+                user_type='Delivery Agent',
+                view_pass=''
+            )
+
+            DeliveryAgentRegistration.objects.create(
+                user=user,
+                name=name,
+                email=email,
+                phone=phone,
+                address=address,
+                employee_id=employee_id,
+                vehicle_number=vehicle_number,
+                vehicle_type=vehicle_type,
+                experience_years=experience_years,
+                profile_image=profile_image
+            )
 
         messages.success(request, 'Delivery agent registered successfully.')
-
         return redirect('/login')
 
     return render(request, 'agent_registration.html')
@@ -238,45 +240,37 @@ def admin_home(request):
     if request.session.get('usertype') != 'Admin':
         return redirect('/login')
 
-    total_customers = CustomerRegistration.objects.count()
-
-    total_agents = DeliveryAgentRegistration.objects.count()
-
-    total_branches = CourierBranch.objects.count()
-
-    total_parcels = Parcel.objects.count()
-
-    booked_parcels = Parcel.objects.filter(
-        status='Booked'
-    ).count()
-
-    delivered_parcels = Parcel.objects.filter(
-        status='Delivered'
-    ).count()
-
-    pending_parcels = Parcel.objects.filter(
-        status__in=[
-            'Booked',
-            'Picked Up',
-            'In Transit',
-            'At Branch',
-            'Out for Delivery'
-        ]
-    ).count()
-
-    delayed_parcels = Parcel.objects.filter(
-        status='Delayed'
-    ).count()
-
     context = {
-        'total_customers': total_customers,
-        'total_agents': total_agents,
-        'total_branches': total_branches,
-        'total_parcels': total_parcels,
-        'booked_parcels': booked_parcels,
-        'delivered_parcels': delivered_parcels,
-        'pending_parcels': pending_parcels,
-        'delayed_parcels': delayed_parcels,
+        'total_customers': CustomerRegistration.objects.count(),
+        'total_agents': DeliveryAgentRegistration.objects.count(),
+        'total_branches': CourierBranch.objects.count(),
+        'total_parcels': Parcel.objects.count(),
+
+        'booked_parcels': Parcel.objects.filter(
+            status='Booked'
+        ).count(),
+
+        'delivered_parcels': Parcel.objects.filter(
+            status='Delivered'
+        ).count(),
+
+        'pending_parcels': Parcel.objects.filter(
+            status__in=[
+                'Booked',
+                'Picked Up',
+                'In Transit',
+                'At Branch',
+                'Out for Delivery'
+            ]
+        ).count(),
+
+        'delayed_parcels': Parcel.objects.filter(
+            status='Delayed'
+        ).count(),
+
+        'active_assignments': DeliveryAssignment.objects.filter(
+            assignment_status__in=['Assigned', 'In Progress']
+        ).count(),
     }
 
     return render(request, 'ADMIN/home.html', context)
@@ -299,31 +293,33 @@ def customer_home(request):
         user_id=request.session['userid']
     )
 
-    total_parcels = Parcel.objects.filter(
-        customer=customer
-    ).count()
-
-    delivered_parcels = Parcel.objects.filter(
-        customer=customer,
-        status='Delivered'
-    ).count()
-
-    pending_parcels = Parcel.objects.filter(
-        customer=customer
-    ).exclude(
-        status__in=['Delivered', 'Cancelled', 'Returned']
-    ).count()
-
-    recent_parcels = Parcel.objects.filter(
-        customer=customer
-    ).order_by('-booking_date')[:5]
-
     context = {
         'customer': customer,
-        'total_parcels': total_parcels,
-        'delivered_parcels': delivered_parcels,
-        'pending_parcels': pending_parcels,
-        'recent_parcels': recent_parcels,
+
+        'total_parcels': Parcel.objects.filter(
+            customer=customer
+        ).count(),
+
+        'delivered_parcels': Parcel.objects.filter(
+            customer=customer,
+            status='Delivered'
+        ).count(),
+
+        'pending_parcels': Parcel.objects.filter(
+            customer=customer,
+            status__in=[
+                'Booked',
+                'Picked Up',
+                'In Transit',
+                'At Branch',
+                'Out for Delivery',
+                'Delayed'
+            ]
+        ).count(),
+
+        'recent_parcels': Parcel.objects.filter(
+            customer=customer
+        ).order_by('-booking_date')[:5],
     }
 
     return render(request, 'CUSTOMER/home.html', context)
@@ -346,15 +342,25 @@ def agent_home(request):
         user_id=request.session['userid']
     )
 
+    assignments = DeliveryAssignment.objects.filter(
+        delivery_agent=agent,
+        assignment_status__in=['Assigned', 'In Progress']
+    ).select_related('parcel').order_by('-assigned_at')
+
     context = {
         'agent': agent,
-        'total_parcels': Parcel.objects.filter(
-            status__in=['Picked Up', 'In Transit', 'At Branch', 'Out for Delivery']
+        'assignments': assignments,
+
+        'total_assignments': DeliveryAssignment.objects.filter(
+            delivery_agent=agent
         ).count(),
-        'available_agents': DeliveryAgentRegistration.objects.filter(
-            is_available=True,
-            user__is_active=True
+
+        'completed_deliveries': DeliveryAssignment.objects.filter(
+            delivery_agent=agent,
+            assignment_status='Completed'
         ).count(),
+
+        'active_assignments': assignments.count(),
     }
 
     return render(request, 'AGENT/home.html', context)
@@ -393,7 +399,6 @@ def customer_profile(request):
         customer.user.save(update_fields=['email'])
 
         messages.success(request, 'Profile updated successfully.')
-
         return redirect('/customer_profile')
 
     return render(
@@ -439,7 +444,6 @@ def agent_profile(request):
         agent.user.save(update_fields=['email'])
 
         messages.success(request, 'Profile updated successfully.')
-
         return redirect('/agent_profile')
 
     return render(
@@ -496,7 +500,7 @@ def view_agents(request):
 
 
 # ==========================================
-# 13. MANAGE BRANCHES - ADMIN
+# 13. MANAGE COURIER BRANCHES - ADMIN
 # ==========================================
 
 def manage_branches(request):
@@ -516,18 +520,11 @@ def manage_branches(request):
         phone = request.POST.get('phone')
         email = request.POST.get('email')
 
-        if not all([
-            branch_name, branch_code,
-            location, address, phone
-        ]):
-
+        if not all([branch_name, branch_code, location, address, phone]):
             messages.error(request, 'Please fill all required fields.')
             return redirect('/manage_branches')
 
-        if CourierBranch.objects.filter(
-            branch_code=branch_code
-        ).exists():
-
+        if CourierBranch.objects.filter(branch_code=branch_code).exists():
             messages.error(request, 'Branch code already exists.')
             return redirect('/manage_branches')
 
@@ -541,7 +538,6 @@ def manage_branches(request):
         )
 
         messages.success(request, 'Branch added successfully.')
-
         return redirect('/manage_branches')
 
     branches = CourierBranch.objects.all().order_by('-created_at')
@@ -565,10 +561,7 @@ def toggle_branch_status(request, branch_id):
     if request.session.get('usertype') != 'Admin':
         return redirect('/login')
 
-    branch = get_object_or_404(
-        CourierBranch,
-        id=branch_id
-    )
+    branch = get_object_or_404(CourierBranch, id=branch_id)
 
     if request.method == 'POST':
 
@@ -581,7 +574,7 @@ def toggle_branch_status(request, branch_id):
 
 
 # ==========================================
-# 15. TOGGLE AGENT STATUS - ADMIN
+# 15. TOGGLE AGENT ACCOUNT STATUS - ADMIN
 # ==========================================
 
 def toggle_agent_status(request, agent_id):
@@ -598,6 +591,20 @@ def toggle_agent_status(request, agent_id):
     )
 
     if request.method == 'POST':
+
+        if agent.user.is_active:
+
+            active_assignments = DeliveryAssignment.objects.filter(
+                delivery_agent=agent,
+                assignment_status__in=['Assigned', 'In Progress']
+            ).exists()
+
+            if active_assignments:
+                messages.error(
+                    request,
+                    'Cannot deactivate an agent with active assignments.'
+                )
+                return redirect('/view_agents')
 
         agent.user.is_active = not agent.user.is_active
         agent.user.save(update_fields=['is_active'])
@@ -651,12 +658,25 @@ def admin_parcel_detail(request, parcel_id):
         id=parcel_id
     )
 
-    branches = CourierBranch.objects.filter(is_active=True)
+    history = ParcelTrackingHistory.objects.filter(
+        parcel=parcel
+    ).select_related('updated_by').order_by('-updated_at')
+
+    assignments = DeliveryAssignment.objects.filter(
+        parcel=parcel
+    ).select_related(
+        'delivery_agent',
+        'assigned_by'
+    ).order_by('-assigned_at')
 
     return render(
         request,
         'ADMIN/parcel_detail.html',
-        {'parcel': parcel, 'branches': branches}
+        {
+            'parcel': parcel,
+            'history': history,
+            'assignments': assignments
+        }
     )
 
 
@@ -672,23 +692,54 @@ def cancel_parcel(request, parcel_id):
     if request.session.get('usertype') != 'Admin':
         return redirect('/login')
 
-    parcel = get_object_or_404(
-        Parcel,
-        id=parcel_id
-    )
+    parcel = get_object_or_404(Parcel, id=parcel_id)
 
     if request.method == 'POST':
 
-        if parcel.status == 'Delivered':
+        if parcel.status in ['Delivered', 'Cancelled', 'Returned']:
+            messages.error(request, 'This parcel cannot be cancelled.')
+            return redirect('/admin_parcel_detail/' + str(parcel.id))
 
-            messages.error(request, 'Delivered parcel cannot be cancelled.')
+        with transaction.atomic():
 
-        else:
+            active_assignments = DeliveryAssignment.objects.filter(
+                parcel=parcel,
+                assignment_status__in=['Assigned', 'In Progress']
+            )
+
+            affected_agents = list(
+                DeliveryAgentRegistration.objects.filter(
+                    assignments__in=active_assignments
+                ).distinct()
+            )
+
+            active_assignments.update(
+                assignment_status='Cancelled'
+            )
+
+            for agent in affected_agents:
+
+                other_active = DeliveryAssignment.objects.filter(
+                    delivery_agent=agent,
+                    assignment_status__in=['Assigned', 'In Progress']
+                ).exists()
+
+                if not other_active:
+                    agent.is_available = True
+                    agent.save(update_fields=['is_available'])
 
             parcel.status = 'Cancelled'
             parcel.save(update_fields=['status'])
 
-            messages.success(request, 'Parcel cancelled successfully.')
+            ParcelTrackingHistory.objects.create(
+                parcel=parcel,
+                status='Cancelled',
+                location=parcel.current_branch.location if parcel.current_branch else parcel.source,
+                description='Parcel cancelled by administrator.',
+                updated_by_id=request.session['userid']
+            )
+
+        messages.success(request, 'Parcel cancelled successfully.')
 
     return redirect('/admin_parcel_detail/' + str(parcel.id))
 
@@ -736,12 +787,10 @@ def book_parcel(request):
             source, destination, parcel_type,
             weight, distance_km, delivery_type
         ]):
-
             messages.error(request, 'Please fill all required fields.')
             return redirect('/book_parcel')
 
         try:
-
             weight = float(weight)
             distance_km = float(distance_km)
 
@@ -749,7 +798,6 @@ def book_parcel(request):
                 raise ValueError
 
         except (ValueError, TypeError):
-
             messages.error(request, 'Enter valid weight and distance.')
             return redirect('/book_parcel')
 
@@ -760,7 +808,6 @@ def book_parcel(request):
         }
 
         if delivery_type not in delivery_charges:
-
             messages.error(request, 'Invalid delivery type.')
             return redirect('/book_parcel')
 
@@ -781,6 +828,14 @@ def book_parcel(request):
             delivery_type=delivery_type,
             delivery_charge=delivery_charges[delivery_type],
             status='Booked'
+        )
+
+        ParcelTrackingHistory.objects.create(
+            parcel=parcel,
+            status='Booked',
+            location=source,
+            description='Parcel booking completed.',
+            updated_by_id=request.session['userid']
         )
 
         messages.success(
@@ -812,7 +867,7 @@ def customer_parcels(request):
 
     parcels = Parcel.objects.filter(
         customer=customer
-    ).order_by('-booking_date')
+    ).select_related('current_branch').order_by('-booking_date')
 
     return render(
         request,
@@ -844,53 +899,64 @@ def track_parcel(request, parcel_id):
         customer=customer
     )
 
+    history = ParcelTrackingHistory.objects.filter(
+        parcel=parcel
+    ).order_by('-updated_at')
+
     return render(
         request,
         'CUSTOMER/track_parcel.html',
-        {'parcel': parcel}
+        {
+            'parcel': parcel,
+            'history': history
+        }
     )
 
 
 # ==========================================
-# 22. PUBLIC TRACK PARCEL
+# 22. PUBLIC PARCEL TRACKING
 # ==========================================
 
 def public_track_parcel(request):
 
     parcel = None
+    history = None
 
     if request.method == 'POST':
 
         tracking_id = request.POST.get(
-            'tracking_id',
-            ''
+            'tracking_id', ''
         ).strip().upper()
 
         if tracking_id:
 
             try:
+                parcel = Parcel.objects.select_related(
+                    'current_branch'
+                ).get(tracking_id=tracking_id)
 
-                parcel = Parcel.objects.get(
-                    tracking_id=tracking_id
-                )
+                history = ParcelTrackingHistory.objects.filter(
+                    parcel=parcel
+                ).order_by('-updated_at')
 
             except Parcel.DoesNotExist:
-
                 messages.error(request, 'Invalid tracking ID.')
 
         else:
-
             messages.error(request, 'Please enter a tracking ID.')
 
     return render(
         request,
         'track_parcel.html',
-        {'parcel': parcel}
+        {
+            'parcel': parcel,
+            'history': history
+        }
     )
 
 
 # ==========================================
-# 23. CUSTOMER CANCEL PARCEL
+# 23. CANCEL PARCEL - CUSTOMER
 # ==========================================
 
 def customer_cancel_parcel(request, parcel_id):
@@ -918,7 +984,7 @@ def customer_cancel_parcel(request, parcel_id):
 
             messages.error(
                 request,
-                'Only booked parcels can be cancelled.'
+                'Only booked parcels can be cancelled by the customer.'
             )
 
         else:
@@ -926,16 +992,24 @@ def customer_cancel_parcel(request, parcel_id):
             parcel.status = 'Cancelled'
             parcel.save(update_fields=['status'])
 
+            ParcelTrackingHistory.objects.create(
+                parcel=parcel,
+                status='Cancelled',
+                location=parcel.source,
+                description='Parcel cancelled by customer.',
+                updated_by_id=request.session['userid']
+            )
+
             messages.success(request, 'Parcel cancelled successfully.')
 
     return redirect('/customer_parcels')
 
 
 # ==========================================
-# 24. UPDATE PARCEL STATUS - ADMIN
+# 24. ASSIGN PARCEL TO DELIVERY AGENT - ADMIN
 # ==========================================
 
-def update_parcel_status(request, parcel_id):
+def assign_parcel(request):
 
     if 'userid' not in request.session:
         return redirect('/login')
@@ -943,63 +1017,364 @@ def update_parcel_status(request, parcel_id):
     if request.session.get('usertype') != 'Admin':
         return redirect('/login')
 
-    parcel = get_object_or_404(
-        Parcel,
-        id=parcel_id
+    parcels = Parcel.objects.filter(
+        status__in=['Booked', 'At Branch']
+    ).order_by('-booking_date')
+
+    agents = DeliveryAgentRegistration.objects.filter(
+        is_available=True,
+        user__is_active=True
+    ).select_related('user')
+
+    if request.method == 'POST':
+
+        parcel_id = request.POST.get('parcel_id')
+        agent_id = request.POST.get('agent_id')
+
+        parcel = get_object_or_404(Parcel, id=parcel_id)
+
+        agent = get_object_or_404(
+            DeliveryAgentRegistration,
+            id=agent_id,
+            is_available=True,
+            user__is_active=True
+        )
+
+        if parcel.status not in ['Booked', 'At Branch']:
+            messages.error(request, 'This parcel cannot be assigned.')
+            return redirect('/assign_parcel')
+
+        if DeliveryAssignment.objects.filter(
+            parcel=parcel,
+            assignment_status__in=['Assigned', 'In Progress']
+        ).exists():
+            messages.error(request, 'This parcel already has an active assignment.')
+            return redirect('/assign_parcel')
+
+        with transaction.atomic():
+
+            DeliveryAssignment.objects.create(
+                parcel=parcel,
+                delivery_agent=agent,
+                assigned_by_id=request.session['userid'],
+                assignment_status='Assigned'
+            )
+
+            agent.is_available = False
+            agent.save(update_fields=['is_available'])
+
+            parcel.status = 'Picked Up'
+            parcel.save(update_fields=['status'])
+
+            ParcelTrackingHistory.objects.create(
+                parcel=parcel,
+                status='Picked Up',
+                location=parcel.source,
+                description='Parcel assigned to delivery agent.',
+                updated_by_id=request.session['userid']
+            )
+
+        messages.success(request, 'Parcel assigned successfully.')
+        return redirect('/delivery_assignments')
+
+    return render(
+        request,
+        'ADMIN/assign_parcel.html',
+        {
+            'parcels': parcels,
+            'agents': agents
+        }
     )
+
+
+# ==========================================
+# 25. VIEW DELIVERY ASSIGNMENTS - ADMIN
+# ==========================================
+
+def delivery_assignments(request):
+
+    if 'userid' not in request.session:
+        return redirect('/login')
+
+    if request.session.get('usertype') != 'Admin':
+        return redirect('/login')
+
+    assignments = DeliveryAssignment.objects.select_related(
+        'parcel',
+        'delivery_agent',
+        'assigned_by'
+    ).order_by('-assigned_at')
+
+    return render(
+        request,
+        'ADMIN/delivery_assignments.html',
+        {'assignments': assignments}
+    )
+
+
+# ==========================================
+# 26. REASSIGN PARCEL - ADMIN
+# ==========================================
+
+def reassign_parcel(request, assignment_id):
+
+    if 'userid' not in request.session:
+        return redirect('/login')
+
+    if request.session.get('usertype') != 'Admin':
+        return redirect('/login')
+
+    assignment = get_object_or_404(
+        DeliveryAssignment.objects.select_related(
+            'parcel',
+            'delivery_agent'
+        ),
+        id=assignment_id
+    )
+
+    if assignment.assignment_status not in ['Assigned', 'In Progress']:
+        messages.error(request, 'This assignment cannot be reassigned.')
+        return redirect('/delivery_assignments')
+
+    agents = DeliveryAgentRegistration.objects.filter(
+        is_available=True,
+        user__is_active=True
+    ).exclude(id=assignment.delivery_agent_id)
+
+    if request.method == 'POST':
+
+        agent_id = request.POST.get('agent_id')
+
+        new_agent = get_object_or_404(
+            DeliveryAgentRegistration,
+            id=agent_id,
+            is_available=True,
+            user__is_active=True
+        )
+
+        old_agent = assignment.delivery_agent
+
+        with transaction.atomic():
+
+            if old_agent:
+
+                old_agent_has_other_active = DeliveryAssignment.objects.filter(
+                    delivery_agent=old_agent,
+                    assignment_status__in=['Assigned', 'In Progress']
+                ).exclude(id=assignment.id).exists()
+
+                if not old_agent_has_other_active:
+                    old_agent.is_available = True
+                    old_agent.save(update_fields=['is_available'])
+
+            assignment.delivery_agent = new_agent
+            assignment.assignment_status = 'Assigned'
+            assignment.save(
+                update_fields=['delivery_agent', 'assignment_status']
+            )
+
+            new_agent.is_available = False
+            new_agent.save(update_fields=['is_available'])
+
+            ParcelTrackingHistory.objects.create(
+                parcel=assignment.parcel,
+                status=assignment.parcel.status,
+                location=assignment.parcel.source,
+                description='Delivery agent reassigned by administrator.',
+                updated_by_id=request.session['userid']
+            )
+
+        messages.success(request, 'Parcel reassigned successfully.')
+        return redirect('/delivery_assignments')
+
+    return render(
+        request,
+        'ADMIN/assign_parcel.html',
+        {
+            'assignment': assignment,
+            'parcels': Parcel.objects.filter(id=assignment.parcel_id),
+            'agents': agents,
+            'reassign_mode': True
+        }
+    )
+
+
+# ==========================================
+# 27. VIEW DELIVERY RECORDS - ADMIN
+# ==========================================
+
+def view_delivery_records(request):
+
+    if 'userid' not in request.session:
+        return redirect('/login')
+
+    if request.session.get('usertype') != 'Admin':
+        return redirect('/login')
+
+    records = DeliveryRecord.objects.select_related(
+        'parcel',
+        'delivery_agent'
+    ).order_by('-created_at')
+
+    return render(
+        request,
+        'ADMIN/delivery_records.html',
+        {'records': records}
+    )
+
+
+# ==========================================
+# 28. VIEW ALL TRACKING HISTORY - ADMIN
+# ==========================================
+
+def all_tracking_history(request):
+
+    if 'userid' not in request.session:
+        return redirect('/login')
+
+    if request.session.get('usertype') != 'Admin':
+        return redirect('/login')
+
+    history = ParcelTrackingHistory.objects.select_related(
+        'parcel',
+        'updated_by'
+    ).order_by('-updated_at')
+
+    return render(
+        request,
+        'ADMIN/tracking_history.html',
+        {'history': history}
+    )
+
+
+# ==========================================
+# 29. VIEW ASSIGNED PARCELS - DELIVERY AGENT
+# ==========================================
+
+def assigned_parcels(request):
+
+    if 'userid' not in request.session:
+        return redirect('/login')
+
+    if request.session.get('usertype') != 'Delivery Agent':
+        return redirect('/login')
+
+    agent = get_object_or_404(
+        DeliveryAgentRegistration,
+        user_id=request.session['userid']
+    )
+
+    assignments = DeliveryAssignment.objects.filter(
+        delivery_agent=agent
+    ).select_related('parcel').order_by('-assigned_at')
+
+    return render(
+        request,
+        'AGENT/assigned_parcels.html',
+        {'assignments': assignments}
+    )
+
+
+# ==========================================
+# 30. AGENT PARCEL DETAILS
+# ==========================================
+
+def agent_parcel_detail(request, parcel_id):
+
+    if 'userid' not in request.session:
+        return redirect('/login')
+
+    if request.session.get('usertype') != 'Delivery Agent':
+        return redirect('/login')
+
+    agent = get_object_or_404(
+        DeliveryAgentRegistration,
+        user_id=request.session['userid']
+    )
+
+    assignment = get_object_or_404(
+        DeliveryAssignment.objects.select_related('parcel'),
+        parcel_id=parcel_id,
+        delivery_agent=agent,
+        assignment_status__in=['Assigned', 'In Progress']
+    )
+
+    history = ParcelTrackingHistory.objects.filter(
+        parcel=assignment.parcel
+    ).order_by('-updated_at')
+
+    branches = CourierBranch.objects.filter(
+        is_active=True
+    )
+
+    return render(
+        request,
+        'AGENT/parcel_detail.html',
+        {
+            'assignment': assignment,
+            'parcel': assignment.parcel,
+            'history': history,
+            'branches': branches
+        }
+    )
+
+
+# ==========================================
+# 31. UPDATE PARCEL TRACKING - DELIVERY AGENT
+# ==========================================
+
+def update_parcel_tracking(request, parcel_id):
+
+    if 'userid' not in request.session:
+        return redirect('/login')
+
+    if request.session.get('usertype') != 'Delivery Agent':
+        return redirect('/login')
+
+    agent = get_object_or_404(
+        DeliveryAgentRegistration,
+        user_id=request.session['userid']
+    )
+
+    assignment = get_object_or_404(
+        DeliveryAssignment,
+        parcel_id=parcel_id,
+        delivery_agent=agent,
+        assignment_status__in=['Assigned', 'In Progress']
+    )
+
+    parcel = assignment.parcel
 
     if request.method == 'POST':
 
         status = request.POST.get('status')
+        location = request.POST.get('location')
+        description = request.POST.get('description')
 
-        valid_statuses = [
-            'Booked',
-            'Picked Up',
+        allowed_statuses = [
             'In Transit',
             'At Branch',
             'Out for Delivery',
-            'Delivered',
-            'Delayed',
-            'Cancelled',
-            'Returned'
+            'Delayed'
         ]
 
-        if status not in valid_statuses:
-
+        if status not in allowed_statuses:
             messages.error(request, 'Invalid parcel status.')
+            return redirect('/agent_parcel_detail/' + str(parcel.id))
 
-        else:
+        if not location:
+            messages.error(request, 'Please enter the current location.')
+            return redirect('/agent_parcel_detail/' + str(parcel.id))
 
-            parcel.status = status
-            parcel.save(update_fields=['status'])
+        branch = None
 
-            messages.success(request, 'Parcel status updated successfully.')
+        if status == 'At Branch':
 
-    return redirect('/admin_parcel_detail/' + str(parcel.id))
+            branch_id = request.POST.get('branch_id')
 
-
-# ==========================================
-# 25. UPDATE CURRENT BRANCH - ADMIN
-# ==========================================
-
-def update_parcel_branch(request, parcel_id):
-
-    if 'userid' not in request.session:
-        return redirect('/login')
-
-    if request.session.get('usertype') != 'Admin':
-        return redirect('/login')
-
-    parcel = get_object_or_404(
-        Parcel,
-        id=parcel_id
-    )
-
-    if request.method == 'POST':
-
-        branch_id = request.POST.get('branch_id')
-
-        if branch_id:
+            if not branch_id:
+                messages.error(request, 'Please select a branch.')
+                return redirect('/agent_parcel_detail/' + str(parcel.id))
 
             branch = get_object_or_404(
                 CourierBranch,
@@ -1007,23 +1382,209 @@ def update_parcel_branch(request, parcel_id):
                 is_active=True
             )
 
-            parcel.current_branch = branch
-            parcel.save(update_fields=['current_branch'])
+        with transaction.atomic():
 
-            messages.success(request, 'Parcel branch updated.')
+            parcel.status = status
 
-        else:
+            if status == 'At Branch':
+                parcel.current_branch = branch
+            elif status == 'In Transit':
+                parcel.current_branch = None
 
-            parcel.current_branch = None
-            parcel.save(update_fields=['current_branch'])
+            parcel.save()
 
-            messages.success(request, 'Parcel branch removed.')
+            assignment.assignment_status = 'In Progress'
+            assignment.save(update_fields=['assignment_status'])
 
-    return redirect('/admin_parcel_detail/' + str(parcel.id))
+            ParcelTrackingHistory.objects.create(
+                parcel=parcel,
+                status=status,
+                location=location,
+                description=description or 'Parcel tracking updated.',
+                updated_by_id=request.session['userid']
+            )
+
+        messages.success(request, 'Parcel tracking updated successfully.')
+
+    return redirect('/agent_parcel_detail/' + str(parcel.id))
 
 
 # ==========================================
-# 26. TOGGLE DELIVERY AGENT AVAILABILITY
+# 32. COMPLETE DELIVERY - DELIVERY AGENT
+# ==========================================
+
+def complete_delivery(request, parcel_id):
+
+    if 'userid' not in request.session:
+        return redirect('/login')
+
+    if request.session.get('usertype') != 'Delivery Agent':
+        return redirect('/login')
+
+    agent = get_object_or_404(
+        DeliveryAgentRegistration,
+        user_id=request.session['userid']
+    )
+
+    assignment = get_object_or_404(
+        DeliveryAssignment,
+        parcel_id=parcel_id,
+        delivery_agent=agent,
+        assignment_status__in=['Assigned', 'In Progress']
+    )
+
+    parcel = assignment.parcel
+
+    if request.method == 'POST':
+
+        if parcel.status != 'Out for Delivery':
+            messages.error(
+                request,
+                'Parcel must be Out for Delivery before completion.'
+            )
+            return redirect('/agent_parcel_detail/' + str(parcel.id))
+
+        receiver_name = request.POST.get('receiver_name')
+        receiver_phone = request.POST.get('receiver_phone')
+        delivery_remarks = request.POST.get('delivery_remarks')
+        delivery_proof = request.FILES.get('delivery_proof')
+
+        if not receiver_name or not receiver_phone:
+            messages.error(request, 'Receiver name and phone are required.')
+            return redirect('/agent_parcel_detail/' + str(parcel.id))
+
+        with transaction.atomic():
+
+            delivery_date = timezone.now()
+
+            DeliveryRecord.objects.create(
+                parcel=parcel,
+                delivery_agent=agent,
+                receiver_name=receiver_name,
+                receiver_phone=receiver_phone,
+                delivery_status='Delivered',
+                delivery_proof=delivery_proof,
+                delivery_remarks=delivery_remarks,
+                delivery_date=delivery_date
+            )
+
+            parcel.status = 'Delivered'
+            parcel.delivered_at = delivery_date
+            parcel.save(update_fields=['status', 'delivered_at'])
+
+            assignment.assignment_status = 'Completed'
+            assignment.completed_at = delivery_date
+            assignment.save(
+                update_fields=['assignment_status', 'completed_at']
+            )
+
+            other_active_assignments = DeliveryAssignment.objects.filter(
+                delivery_agent=agent,
+                assignment_status__in=['Assigned', 'In Progress']
+            ).exclude(id=assignment.id).exists()
+
+            if not other_active_assignments:
+                agent.is_available = True
+                agent.save(update_fields=['is_available'])
+
+            ParcelTrackingHistory.objects.create(
+                parcel=parcel,
+                status='Delivered',
+                location=parcel.destination,
+                description='Parcel successfully delivered to receiver.',
+                updated_by_id=request.session['userid']
+            )
+
+        messages.success(request, 'Delivery completed successfully.')
+        return redirect('/assigned_parcels')
+
+    return redirect('/agent_parcel_detail/' + str(parcel.id))
+
+
+# ==========================================
+# 33. FAILED DELIVERY - DELIVERY AGENT
+# ==========================================
+
+def failed_delivery(request, parcel_id):
+
+    if 'userid' not in request.session:
+        return redirect('/login')
+
+    if request.session.get('usertype') != 'Delivery Agent':
+        return redirect('/login')
+
+    agent = get_object_or_404(
+        DeliveryAgentRegistration,
+        user_id=request.session['userid']
+    )
+
+    assignment = get_object_or_404(
+        DeliveryAssignment,
+        parcel_id=parcel_id,
+        delivery_agent=agent,
+        assignment_status__in=['Assigned', 'In Progress']
+    )
+
+    parcel = assignment.parcel
+
+    if request.method == 'POST':
+
+        remarks = request.POST.get('delivery_remarks')
+        receiver_name = request.POST.get('receiver_name') or parcel.receiver_name
+        receiver_phone = request.POST.get('receiver_phone') or parcel.receiver_phone
+
+        if parcel.status != 'Out for Delivery':
+            messages.error(request, 'Parcel must be Out for Delivery.')
+            return redirect('/agent_parcel_detail/' + str(parcel.id))
+
+        with transaction.atomic():
+
+            delivery_date = timezone.now()
+
+            DeliveryRecord.objects.create(
+                parcel=parcel,
+                delivery_agent=agent,
+                receiver_name=receiver_name,
+                receiver_phone=receiver_phone,
+                delivery_status='Failed',
+                delivery_remarks=remarks or 'Delivery attempt failed.',
+                delivery_date=delivery_date
+            )
+
+            parcel.status = 'Returned'
+            parcel.save(update_fields=['status'])
+
+            assignment.assignment_status = 'Completed'
+            assignment.completed_at = delivery_date
+            assignment.save(
+                update_fields=['assignment_status', 'completed_at']
+            )
+
+            other_active_assignments = DeliveryAssignment.objects.filter(
+                delivery_agent=agent,
+                assignment_status__in=['Assigned', 'In Progress']
+            ).exclude(id=assignment.id).exists()
+
+            if not other_active_assignments:
+                agent.is_available = True
+                agent.save(update_fields=['is_available'])
+
+            ParcelTrackingHistory.objects.create(
+                parcel=parcel,
+                status='Returned',
+                location=parcel.destination,
+                description=remarks or 'Delivery attempt failed. Parcel returned.',
+                updated_by_id=request.session['userid']
+            )
+
+        messages.success(request, 'Failed delivery recorded.')
+        return redirect('/assigned_parcels')
+
+    return redirect('/agent_parcel_detail/' + str(parcel.id))
+
+
+# ==========================================
+# 34. TOGGLE AGENT AVAILABILITY
 # ==========================================
 
 def toggle_agent_availability(request):
@@ -1041,9 +1602,21 @@ def toggle_agent_availability(request):
 
     if request.method == 'POST':
 
-        agent.is_available = not agent.is_available
-        agent.save(update_fields=['is_available'])
+        active_assignments = DeliveryAssignment.objects.filter(
+            delivery_agent=agent,
+            assignment_status__in=['Assigned', 'In Progress']
+        ).exists()
 
-        messages.success(request, 'Availability updated successfully.')
+        if active_assignments and agent.is_available:
+            messages.error(
+                request,
+                'You cannot become unavailable while you have active assignments.'
+            )
+
+        else:
+            agent.is_available = not agent.is_available
+            agent.save(update_fields=['is_available'])
+
+            messages.success(request, 'Availability updated successfully.')
 
     return redirect('/agent_home')
