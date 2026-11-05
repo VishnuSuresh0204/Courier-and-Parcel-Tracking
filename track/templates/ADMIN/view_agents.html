@@ -1,4 +1,4 @@
-{% extends 'commen.html' %}
+{% extends 'ADMIN/commen.html' %}
 {% load static %}
 
 {% block title %}TrackParcel | Delivery Fleet Agents{% endblock %}
@@ -85,7 +85,7 @@
                 {% endif %}
               </td>
               <td>
-                <form method="POST" action="/toggle_agent_status/{{ agent.id }}" onsubmit="return confirm('Toggle active account access for this agent?');">
+                <form method="POST" action="/toggle_agent_status/{{ agent.id }}/" onsubmit="return confirm('Toggle active account access for this agent?');">
                   {% csrf_token %}
                   {% if agent.user.is_active %}
                     <button type="submit" class="btn btn-outline-danger btn-sm">
