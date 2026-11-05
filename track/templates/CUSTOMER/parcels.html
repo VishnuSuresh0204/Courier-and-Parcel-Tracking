@@ -1,4 +1,4 @@
-{% extends 'commen.html' %}
+{% extends 'CUSTOMER/commen.html' %}
 {% load static %}
 
 {% block title %}TrackParcel | My Consignments Log{% endblock %}
@@ -11,7 +11,7 @@
       <h2 class="display-6 fw-bold mb-0">My Parcels Directory</h2>
       <p class="text-white-50 mb-0">Track real-time statuses and manage cancellations for your sent items</p>
     </div>
-    <a href="/book_parcel" class="btn btn-tp-accent btn-sm fw-bold">
+    <a href="/book_parcel/" class="btn btn-tp-accent btn-sm fw-bold">
       <i class="bi bi-plus-circle me-1"></i> Book New Parcel
     </a>
   </div>
@@ -66,11 +66,11 @@
               </td>
               <td>
                 <div class="d-flex gap-2">
-                  <a href="/track_parcel/{{ parcel.id }}" class="btn btn-outline-primary btn-sm fw-semibold">
+                  <a href="/track_parcel/{{ parcel.id }}/" class="btn btn-outline-primary btn-sm fw-semibold">
                     <i class="bi bi-geo-alt me-1"></i> Track
                   </a>
                   {% if parcel.status == 'Booked' %}
-                    <form method="POST" action="/customer_cancel_parcel/{{ parcel.id }}" onsubmit="return confirm('Do you wish to cancel this booking?');">
+                    <form method="POST" action="/customer_cancel_parcel/{{ parcel.id }}/" onsubmit="return confirm('Do you wish to cancel this booking?');">
                       {% csrf_token %}
                       <button type="submit" class="btn btn-outline-danger btn-sm" title="Cancel Booking">
                         <i class="bi bi-x-circle"></i> Cancel
@@ -86,7 +86,7 @@
                 <i class="bi bi-inbox fs-1 d-block text-secondary mb-2"></i>
                 You haven't booked any shipments yet.
                 <div class="mt-3">
-                  <a href="/book_parcel" class="btn btn-tp-primary btn-sm">Book Parcel Now</a>
+                  <a href="/book_parcel/" class="btn btn-tp-primary btn-sm">Book Parcel Now</a>
                 </div>
               </td>
             </tr>
