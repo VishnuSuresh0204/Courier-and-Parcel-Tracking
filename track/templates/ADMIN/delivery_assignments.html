@@ -1,0 +1,117 @@
+{% extends 'ADMIN/commen.html' %}
+{% load static %}
+
+{% block title %}TrackParcel | Delivery Assignments Log{% endblock %}
+
+{% block content %}
+<div class="tp-header-banner">
+  <div class="container d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <div>
+      <span class="badge bg-warning text-dark fw-bold mb-1">COURIER DISPATCH LEDGER</span>
+      <h2 class="display-6 fw-bold mb-0">Delivery Assignments Registry</h2>
+      <p class="text-white-50 mb-0">Monitor active runs, assigned couriers, completion timestamps, and agent reassignments</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="/assign_parcel/" class="btn btn-warning btn-sm fw-bold">
+        <i class="bi bi-plus-circle me-1"></i> New Assignment
+      </a>
+      <a href="/admin_home/" class="btn btn-outline-light btn-sm fw-semibold">
+        <i class="bi bi-arrow-left me-1"></i> Dashboard
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="container py-4 mb-5">
+  <div class="tp-card p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="fw-bold mb-0 text-dark">
+        <i class="bi bi-journal-check text-primary me-2"></i> All Assignments ({{ assignments|length }})
+      </h5>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-modern align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Consignment</th>
+            <th>Delivery Agent</th>
+            <th>Route (Source &rarr; Dest)</th>
+            <th>Assigned By</th>
+            <th>Assignment Status</th>
+            <th>Timestamps</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in assignments %}
+            <tr>
+              <td>
+                <a href="/admin_parcel_detail/{{ item.parcel.id }}/" class="fw-bold text-primary font-monospace text-decoration-none">
+                  {{ item.parcel.tracking_id }}
+                </a>
+                <div class="small text-muted">{{ item.parcel.parcel_type }} &bull; {{ item.parcel.weight }}kg</div>
+              </td>
+              <td>
+                {% if item.delivery_agent %}
+                  <div class="fw-bold text-dark">{{ item.delivery_agent.name }}</div>
+                  <div class="small text-muted">{{ item.delivery_agent.employee_id }} &bull; {{ item.delivery_agent.phone }}</div>
+                  <div class="small text-secondary">{{ item.delivery_agent.vehicle_type }} [{{ item.delivery_agent.vehicle_number }}]</div>
+                {% else %}
+                  <span class="text-danger italic">Unassigned</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="small fw-semibold text-dark">{{ item.parcel.source }}</div>
+                <div class="small text-muted">&darr; {{ item.parcel.destination }}</div>
+              </td>
+              <td>
+                <span class="small text-muted"><i class="bi bi-person me-1"></i> {{ item.assigned_by.username|default:'Admin' }}</span>
+              </td>
+              <td>
+                {% if item.assignment_status == 'Assigned' %}
+                  <span class="badge bg-warning text-dark px-3 py-2">Assigned</span>
+                {% elif item.assignment_status == 'In Progress' %}
+                  <span class="badge bg-primary px-3 py-2">In Progress</span>
+                {% elif item.assignment_status == 'Completed' %}
+                  <span class="badge bg-success px-3 py-2">Completed</span>
+                {% elif item.assignment_status == 'Cancelled' %}
+                  <span class="badge bg-secondary px-3 py-2">Cancelled</span>
+                {% else %}
+                  <span class="badge bg-light text-dark px-3 py-2">{{ item.assignment_status }}</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="small text-muted"><strong>Assigned:</strong> {{ item.assigned_at|date:"d M, h:i A" }}</div>
+                {% if item.completed_at %}
+                  <div class="small text-success"><strong>Done:</strong> {{ item.completed_at|date:"d M, h:i A" }}</div>
+                {% endif %}
+              </td>
+              <td>
+                {% if item.assignment_status in 'Assigned,In Progress' %}
+                  <a href="/reassign_parcel/{{ item.id }}/" class="btn btn-outline-warning btn-sm text-dark fw-semibold" title="Reassign to another agent">
+                    <i class="bi bi-arrow-repeat me-1"></i> Reassign
+                  </a>
+                {% else %}
+                  <span class="badge bg-light text-secondary border">Finished</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" class="text-center py-5 text-muted">
+                <i class="bi bi-journal-x fs-1 d-block text-secondary mb-2"></i>
+                No parcel assignments created yet.
+                <div class="mt-3">
+                  <a href="/assign_parcel/" class="btn btn-tp-primary btn-sm">Assign First Parcel</a>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
