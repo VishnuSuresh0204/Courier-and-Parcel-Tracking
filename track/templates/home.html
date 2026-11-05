@@ -191,7 +191,7 @@
           <label class="form-label text-white fw-semibold small mb-2">
             <i class="bi bi-search me-1 text-warning"></i> Instant Parcel Tracking
           </label>
-          <form action="/public_track_parcel" method="POST">
+          <form action="/public_track_parcel/" method="POST">
             {% csrf_token %}
             <div class="input-group">
               <span class="input-group-text bg-white border-0 text-muted">
@@ -212,26 +212,26 @@
         <div class="d-flex flex-wrap gap-3">
           {% if request.session.username %}
             {% if request.session.usertype == 'Customer' %}
-              <a href="/book_parcel" class="btn btn-tp-accent btn-lg px-4 fw-bold">
+              <a href="/book_parcel/" class="btn btn-tp-accent btn-lg px-4 fw-bold">
                 <i class="bi bi-plus-circle-fill me-2"></i> Book a Parcel
               </a>
-              <a href="/customer_parcels" class="btn btn-outline-light btn-lg px-4 fw-semibold">
+              <a href="/customer_parcels/" class="btn btn-outline-light btn-lg px-4 fw-semibold">
                 <i class="bi bi-box-seam me-2"></i> My Shipments
               </a>
             {% elif request.session.usertype == 'Delivery Agent' %}
-              <a href="/agent_home" class="btn btn-tp-accent btn-lg px-4 fw-bold">
+              <a href="/agent_home/" class="btn btn-tp-accent btn-lg px-4 fw-bold">
                 <i class="bi bi-speedometer2 me-2"></i> Agent Workspace
               </a>
             {% elif request.session.usertype == 'Admin' %}
-              <a href="/admin_home" class="btn btn-tp-accent btn-lg px-4 fw-bold">
+              <a href="/admin_home/" class="btn btn-tp-accent btn-lg px-4 fw-bold">
                 <i class="bi bi-shield-lock-fill me-2"></i> Admin Console
               </a>
             {% endif %}
           {% else %}
-            <a href="/customer_registration" class="btn btn-tp-primary btn-lg px-4 fw-bold">
+            <a href="/customer_registration/" class="btn btn-tp-primary btn-lg px-4 fw-bold">
               <i class="bi bi-person-plus-fill me-2"></i> Register as Customer
             </a>
-            <a href="/agent_registration" class="btn btn-outline-light btn-lg px-4 fw-semibold">
+            <a href="/agent_registration/" class="btn btn-outline-light btn-lg px-4 fw-semibold">
               <i class="bi bi-bicycle me-2"></i> Join as Delivery Agent
             </a>
           {% endif %}
@@ -446,8 +446,8 @@
               </ul>
             </div>
             <div class="d-grid gap-2 mt-4">
-              <a href="/login" class="btn btn-outline-primary fw-semibold"><i class="bi bi-box-arrow-in-right me-1"></i> Customer Login</a>
-              <a href="/customer_registration" class="btn btn-tp-primary fw-semibold"><i class="bi bi-person-plus me-1"></i> Sign Up as Customer</a>
+              <a href="/login/" class="btn btn-outline-primary fw-semibold"><i class="bi bi-box-arrow-in-right me-1"></i> Customer Login</a>
+              <a href="/customer_registration/" class="btn btn-tp-primary fw-semibold"><i class="bi bi-person-plus me-1"></i> Sign Up as Customer</a>
             </div>
           </div>
         </div>
@@ -476,8 +476,8 @@
               </ul>
             </div>
             <div class="d-grid gap-2 mt-4">
-              <a href="/login" class="btn btn-outline-success fw-semibold"><i class="bi bi-box-arrow-in-right me-1"></i> Agent Sign In</a>
-              <a href="/agent_registration" class="btn btn-tp-accent fw-semibold"><i class="bi bi-person-plus me-1"></i> Register as Agent</a>
+              <a href="/login/" class="btn btn-outline-success fw-semibold"><i class="bi bi-box-arrow-in-right me-1"></i> Agent Sign In</a>
+              <a href="/agent_registration/" class="btn btn-tp-accent fw-semibold"><i class="bi bi-person-plus me-1"></i> Register as Agent</a>
             </div>
           </div>
         </div>
@@ -506,8 +506,8 @@
               </ul>
             </div>
             <div class="d-grid gap-2 mt-4">
-              <a href="/login" class="btn btn-dark fw-semibold"><i class="bi bi-shield-lock me-1"></i> Administrator Sign In</a>
-              <a href="/admin_home" class="btn btn-outline-secondary fw-semibold"><i class="bi bi-speedometer2 me-1"></i> Go to Admin Panel</a>
+              <a href="/login/" class="btn btn-dark fw-semibold"><i class="bi bi-shield-lock me-1"></i> Administrator Sign In</a>
+              <a href="/admin_home/" class="btn btn-outline-secondary fw-semibold"><i class="bi bi-speedometer2 me-1"></i> Go to Admin Panel</a>
             </div>
           </div>
         </div>
