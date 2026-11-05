@@ -23,7 +23,7 @@
           <p class="text-muted small">Enter your credentials to manage your parcels</p>
         </div>
 
-        <form method="POST" action="/login">
+        <form method="POST" action="/login/">
           {% csrf_token %}
           <div class="mb-3">
             <label class="form-label small fw-semibold text-dark">Username</label>
@@ -51,10 +51,10 @@
         <div class="text-center pt-3 border-top mt-4">
           <p class="small text-muted mb-2">Don't have an account yet?</p>
           <div class="d-flex justify-content-center gap-2">
-            <a href="/customer_registration" class="btn btn-outline-primary btn-sm fw-semibold">
+            <a href="/customer_registration/" class="btn btn-outline-primary btn-sm fw-semibold">
               <i class="bi bi-person-plus me-1"></i> Customer Signup
             </a>
-            <a href="/agent_registration" class="btn btn-outline-success btn-sm fw-semibold">
+            <a href="/agent_registration/" class="btn btn-outline-success btn-sm fw-semibold">
               <i class="bi bi-bicycle me-1"></i> Agent Signup
             </a>
           </div>
