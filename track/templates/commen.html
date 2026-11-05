@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}TrackParcel | Smart Courier & Logistics Management{% endblock %}</title>
+  <title>{% block title %}TrackParcel | Smart Courier & Logistics System{% endblock %}</title>
   
   <!-- Favicons -->
   <link href="{% static 'assets/img/favicon.png' %}" rel="icon">
@@ -23,10 +23,9 @@
   <link href="{% static 'assets/vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
   <link href="{% static 'assets/vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
 
-  <!-- Main CSS File from Static Assets -->
+  <!-- Main CSS File -->
   <link href="{% static 'assets/css/main.css' %}" rel="stylesheet">
 
-  <!-- Custom Refined Logistics Style (Enhanced Styling) -->
   <style>
     :root {
       --tp-primary: #1d4ed8;
@@ -38,7 +37,6 @@
       --tp-warning: #f59e0b;
       --tp-danger: #ef4444;
       --tp-dark: #0f172a;
-      --tp-slate: #1e293b;
       --tp-surface: #f8fafc;
       --tp-card-bg: #ffffff;
       --tp-border: #e2e8f0;
@@ -64,7 +62,7 @@
       background: #091224;
       color: #94a3b8;
       font-size: 0.84rem;
-      padding: 7px 0;
+      padding: 8px 0;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
 
@@ -75,7 +73,7 @@
     }
 
     .tp-navbar-top a:hover {
-      color: #f97316;
+      color: var(--tp-accent);
     }
 
     /* Main Navbar */
@@ -142,12 +140,6 @@
       background: #eff6ff;
     }
 
-    .nav-link-tp.active {
-      color: var(--tp-primary) !important;
-      background: #dbeafe;
-    }
-
-    /* Buttons */
     .btn-tp-primary {
       background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
       color: #ffffff !important;
@@ -161,7 +153,6 @@
 
     .btn-tp-primary:hover {
       background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);
-      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.38);
       transform: translateY(-1px);
     }
 
@@ -178,11 +169,9 @@
 
     .btn-tp-accent:hover {
       background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
-      box-shadow: 0 6px 18px rgba(249, 115, 22, 0.38);
       transform: translateY(-1px);
     }
 
-    /* Cards & Components */
     .tp-card {
       background: var(--tp-card-bg);
       border: 1px solid var(--tp-border);
@@ -191,15 +180,10 @@
       transition: transform 0.25s ease, box-shadow 0.25s ease;
     }
 
-    .tp-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
-    }
-
     .tp-header-banner {
       background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
       color: white;
-      padding: 38px 0;
+      padding: 40px 0;
       border-bottom: 3px solid var(--tp-accent);
       margin-bottom: 2rem;
     }
@@ -224,24 +208,20 @@
     .badge-Cancelled { background: #f1f5f9; color: #64748b; }
     .badge-Returned { background: #fce7f3; color: #be185d; }
 
-    /* Forms */
-    .form-control, .form-select {
-      border-radius: 10px;
-      border: 1px solid #cbd5e1;
-      padding: 10px 14px;
-      font-size: 0.95rem;
-      transition: all 0.2s ease;
+    .pulse-dot-green {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      display: inline-block;
+      box-shadow: 0 0 0 rgba(16, 185, 129, 0.6);
+      animation: pulse-green 1.8s infinite;
     }
 
-    .form-control:focus, .form-select:focus {
-      border-color: var(--tp-primary);
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-    }
-
-    .input-group-text {
-      background-color: #f8fafc;
-      border-color: #cbd5e1;
-      border-radius: 10px 0 0 10px;
+    @keyframes pulse-green {
+      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
     }
 
     /* Tables */
@@ -268,27 +248,6 @@
       vertical-align: middle;
       border-bottom: 1px solid #f1f5f9;
       font-size: 0.92rem;
-    }
-
-    .table-modern tbody tr:hover {
-      background-color: #f8fafc;
-    }
-
-    /* Pulse Dot */
-    .pulse-dot-green {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #10b981;
-      display: inline-block;
-      box-shadow: 0 0 0 rgba(16, 185, 129, 0.6);
-      animation: pulse-green 1.8s infinite;
-    }
-
-    @keyframes pulse-green {
-      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-      70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
     }
 
     /* Flash Alerts */
@@ -336,37 +295,22 @@
       <div class="d-flex align-items-center">
         <span class="me-3 d-none d-sm-inline-flex align-items-center gap-2">
           <span class="pulse-dot-green"></span>
-          <span class="text-white fw-semibold">COURIER NETWORK ONLINE</span>
+          <span class="text-white fw-semibold">COURIER DISPATCH ACTIVE</span>
         </span>
-        <span class="me-3"><i class="bi bi-truck me-1 text-warning"></i> Nationwide Express Parcel Transit</span>
+        <span class="me-3"><i class="bi bi-truck me-1 text-warning"></i> Nationwide Express Logistics</span>
         <span class="d-none d-lg-inline text-secondary">|</span>
-        <span class="d-none d-lg-inline ms-3"><i class="bi bi-shield-check me-1 text-success"></i> Secure & Insured Deliveries</span>
+        <span class="d-none d-lg-inline ms-3"><i class="bi bi-shield-check me-1 text-success"></i> 100% Insured Deliveries</span>
       </div>
 
       <div class="d-flex align-items-center gap-3">
-        {% if request.session.username %}
-          <span class="text-white small">
-            <i class="bi bi-person-circle me-1"></i> <strong>{{ request.session.username }}</strong>
-            <span class="badge bg-primary ms-1">{{ request.session.usertype }}</span>
-          </span>
-          {% if request.session.usertype == 'Admin' %}
-            <a href="/admin_home" class="text-warning small fw-semibold"><i class="bi bi-speedometer2 me-1"></i> Admin Panel</a>
-          {% elif request.session.usertype == 'Customer' %}
-            <a href="/customer_home" class="text-warning small fw-semibold"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a>
-          {% elif request.session.usertype == 'Delivery Agent' %}
-            <a href="/agent_home" class="text-warning small fw-semibold"><i class="bi bi-speedometer2 me-1"></i> Agent Portal</a>
-          {% endif %}
-          <a href="/logout" class="text-danger small fw-semibold"><i class="bi bi-box-arrow-right me-1"></i> Logout</a>
-        {% else %}
-          <a href="/public_track_parcel" class="fw-semibold"><i class="bi bi-geo-alt me-1 text-warning"></i> Quick Track</a>
-          <a href="/login"><i class="bi bi-box-arrow-in-right me-1"></i> Login</a>
-          <a href="/customer_registration" class="d-none d-md-inline"><i class="bi bi-person-plus me-1"></i> Register</a>
-        {% endif %}
+        <a href="/public_track_parcel/"><i class="bi bi-geo-alt me-1 text-warning"></i> Quick Track</a>
+        <a href="/login/"><i class="bi bi-box-arrow-in-right me-1"></i> Sign In</a>
+        <a href="/customer_registration/" class="d-none d-md-inline"><i class="bi bi-person-plus me-1"></i> Register</a>
       </div>
     </div>
   </div>
 
-  <!-- Main Navigation -->
+  <!-- Main Navigation (Public) -->
   <nav class="navbar navbar-expand-lg tp-navbar-main sticky-top">
     <div class="container">
       <a class="tp-brand" href="/">
@@ -379,97 +323,50 @@
         </div>
       </a>
 
-      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#tpMainNav">
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#tpPublicNav">
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <div class="collapse navbar-collapse" id="tpMainNav">
+      <div class="collapse navbar-collapse" id="tpPublicNav">
         <ul class="navbar-nav me-auto ms-lg-4">
           <li class="nav-item">
             <a class="nav-link nav-link-tp" href="/"><i class="bi bi-house-door me-1"></i> Home</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link nav-link-tp" href="/public_track_parcel"><i class="bi bi-search me-1"></i> Track Parcel</a>
+            <a class="nav-link nav-link-tp" href="/public_track_parcel/"><i class="bi bi-search me-1"></i> Track Parcel</a>
           </li>
-
-          {% if request.session.username %}
-            {% if request.session.usertype == 'Admin' %}
-              <li class="nav-item">
-                <a class="nav-link nav-link-tp" href="/admin_home"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link nav-link-tp" href="/view_all_parcels"><i class="bi bi-boxes me-1"></i> All Parcels</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link nav-link-tp" href="/manage_branches"><i class="bi bi-building me-1"></i> Branches</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link nav-link-tp" href="/view_customers"><i class="bi bi-people me-1"></i> Customers</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link nav-link-tp" href="/view_agents"><i class="bi bi-bicycle me-1"></i> Delivery Agents</a>
-              </li>
-            {% elif request.session.usertype == 'Customer' %}
-              <li class="nav-item">
-                <a class="nav-link nav-link-tp" href="/customer_home"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link nav-link-tp" href="/book_parcel"><i class="bi bi-plus-circle me-1"></i> Book Parcel</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link nav-link-tp" href="/customer_parcels"><i class="bi bi-box-seam me-1"></i> My Parcels</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link nav-link-tp" href="/customer_profile"><i class="bi bi-person me-1"></i> Profile</a>
-              </li>
-            {% elif request.session.usertype == 'Delivery Agent' %}
-              <li class="nav-item">
-                <a class="nav-link nav-link-tp" href="/agent_home"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link nav-link-tp" href="/agent_profile"><i class="bi bi-person me-1"></i> Profile</a>
-              </li>
-            {% endif %}
-          {% else %}
-            <li class="nav-item">
-              <a class="nav-link nav-link-tp" href="/#services"><i class="bi bi-lightning-charge me-1"></i> Delivery Services</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link nav-link-tp" href="/#how-it-works"><i class="bi bi-diagram-3 me-1"></i> How It Works</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link nav-link-tp" href="/#contact"><i class="bi bi-headset me-1"></i> Support</a>
-            </li>
-          {% endif %}
+          <li class="nav-item">
+            <a class="nav-link nav-link-tp" href="/#services"><i class="bi bi-lightning-charge me-1"></i> Delivery Services</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link nav-link-tp" href="/#how-it-works"><i class="bi bi-diagram-3 me-1"></i> How It Works</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link nav-link-tp" href="/#contact"><i class="bi bi-headset me-1"></i> Support</a>
+          </li>
         </ul>
 
         <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
-          {% if request.session.username %}
-            <a href="/logout" class="btn btn-outline-danger btn-sm px-3 fw-semibold">
-              <i class="bi bi-box-arrow-right me-1"></i> Logout
-            </a>
-          {% else %}
-            <a href="/login" class="btn btn-outline-primary btn-sm px-3 fw-semibold">
-              <i class="bi bi-box-arrow-in-right me-1"></i> Login
-            </a>
-            <div class="dropdown">
-              <button class="btn btn-tp-accent btn-sm dropdown-toggle fw-semibold" type="button" data-bs-toggle="dropdown">
-                <i class="bi bi-person-plus me-1"></i> Register
-              </button>
-              <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
-                <li>
-                  <a class="dropdown-item py-2" href="/customer_registration">
-                    <i class="bi bi-person me-2 text-primary"></i> As Customer
-                  </a>
-                </li>
-                <li>
-                  <a class="dropdown-item py-2" href="/agent_registration">
-                    <i class="bi bi-bicycle me-2 text-success"></i> As Delivery Agent
-                  </a>
-                </li>
-              </ul>
-            </div>
-          {% endif %}
+          <a href="/login/" class="btn btn-outline-primary btn-sm px-3 fw-semibold">
+            <i class="bi bi-box-arrow-in-right me-1"></i> Login
+          </a>
+          <div class="dropdown">
+            <button class="btn btn-tp-accent btn-sm dropdown-toggle fw-semibold" type="button" data-bs-toggle="dropdown">
+              <i class="bi bi-person-plus me-1"></i> Register
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
+              <li>
+                <a class="dropdown-item py-2" href="/customer_registration/">
+                  <i class="bi bi-person me-2 text-primary"></i> As Customer
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item py-2" href="/agent_registration/">
+                  <i class="bi bi-bicycle me-2 text-success"></i> As Delivery Agent
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
@@ -502,7 +399,7 @@
     {% endblock %}
   </main>
 
-  <!-- Footer -->
+  <!-- Public Footer -->
   <footer class="tp-footer">
     <div class="container">
       <div class="row g-4 mb-4">
@@ -526,10 +423,10 @@
           <h5>Quick Links</h5>
           <ul class="list-unstyled small">
             <li class="mb-2"><a href="/"><i class="bi bi-chevron-right me-1"></i> Home</a></li>
-            <li class="mb-2"><a href="/public_track_parcel"><i class="bi bi-chevron-right me-1"></i> Track Parcel</a></li>
-            <li class="mb-2"><a href="/login"><i class="bi bi-chevron-right me-1"></i> Sign In</a></li>
-            <li class="mb-2"><a href="/customer_registration"><i class="bi bi-chevron-right me-1"></i> Customer Register</a></li>
-            <li class="mb-2"><a href="/agent_registration"><i class="bi bi-chevron-right me-1"></i> Agent Register</a></li>
+            <li class="mb-2"><a href="/public_track_parcel/"><i class="bi bi-chevron-right me-1"></i> Track Parcel</a></li>
+            <li class="mb-2"><a href="/login/"><i class="bi bi-chevron-right me-1"></i> Sign In</a></li>
+            <li class="mb-2"><a href="/customer_registration/"><i class="bi bi-chevron-right me-1"></i> Customer Register</a></li>
+            <li class="mb-2"><a href="/agent_registration/"><i class="bi bi-chevron-right me-1"></i> Agent Register</a></li>
           </ul>
         </div>
 
@@ -563,17 +460,11 @@
   <script src="{% static 'assets/vendor/aos/aos.js' %}"></script>
   <script src="{% static 'assets/vendor/glightbox/js/glightbox.min.js' %}"></script>
   <script src="{% static 'assets/vendor/swiper/swiper-bundle.min.js' %}"></script>
-
-  <!-- Main JS File -->
   <script src="{% static 'assets/js/main.js' %}"></script>
 
   <script>
     if (typeof AOS !== 'undefined') {
-      AOS.init({
-        duration: 800,
-        easing: 'ease-in-out',
-        once: true
-      });
+      AOS.init({ duration: 800, easing: 'ease-in-out', once: true });
     }
   </script>
 
