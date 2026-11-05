@@ -1,0 +1,152 @@
+{% extends 'ADMIN/commen.html' %}
+{% load static %}
+
+{% block title %}TrackParcel | {% if reassign_mode %}Reassign Delivery Agent{% else %}Assign Parcel to Agent{% endif %}{% endblock %}
+
+{% block content %}
+<div class="tp-header-banner">
+  <div class="container d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <div>
+      <span class="badge bg-warning text-dark fw-bold mb-1">FLEET DISPATCH</span>
+      <h2 class="display-6 fw-bold mb-0">
+        {% if reassign_mode %}
+          Reassign Delivery Agent (Assignment #{{ assignment.id }})
+        {% else %}
+          Assign Parcel to Delivery Agent
+        {% endif %}
+      </h2>
+      <p class="text-white-50 mb-0">Match unassigned or transit consignments with active on-duty delivery couriers</p>
+    </div>
+    <a href="/delivery_assignments/" class="btn btn-outline-light btn-sm fw-semibold">
+      <i class="bi bi-arrow-left me-1"></i> Back to Assignments
+    </a>
+  </div>
+</div>
+
+<div class="container py-4 mb-5">
+  <div class="row g-4">
+    <!-- Assignment Form Card -->
+    <div class="col-lg-6">
+      <div class="tp-card p-4 p-md-5">
+        <h5 class="fw-bold text-dark mb-4">
+          <i class="bi bi-person-check-fill text-success me-2"></i>
+          {% if reassign_mode %}Reassign Consignment{% else %}Direct Parcel Assignment{% endif %}
+        </h5>
+
+        {% if reassign_mode %}
+          <div class="alert alert-warning py-3 mb-4">
+            <div class="fw-bold"><i class="bi bi-exclamation-triangle-fill me-1"></i> Current Assignment Info:</div>
+            <div class="small mt-1">Consignment: <strong>{{ assignment.parcel.tracking_id }}</strong> ({{ assignment.parcel.source }} &rarr; {{ assignment.parcel.destination }})</div>
+            <div class="small">Current Agent: <strong>{{ assignment.delivery_agent.name|default:'Unassigned' }}</strong> ({{ assignment.delivery_agent.employee_id|default:'N/A' }})</div>
+          </div>
+
+          <form method="POST" action="/reassign_parcel/{{ assignment.id }}/">
+            {% csrf_token %}
+            <div class="mb-4">
+              <label class="form-label small fw-semibold text-dark">Select New Available Agent <span class="text-danger">*</span></label>
+              <select name="agent_id" class="form-select form-select-lg" required>
+                <option value="">-- Choose New Delivery Agent --</option>
+                {% for ag in agents %}
+                  <option value="{{ ag.id }}">
+                    {{ ag.name }} ({{ ag.employee_id }}) &bull; {{ ag.vehicle_type }} [{{ ag.vehicle_number }}]
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <button type="submit" class="btn btn-warning w-100 py-3 fw-bold">
+              <i class="bi bi-arrow-repeat me-1"></i> Confirm Reassignment
+            </button>
+          </form>
+
+        {% else %}
+          <form method="POST" action="/assign_parcel/">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+              <label class="form-label small fw-semibold text-dark">Select Pending Parcel <span class="text-danger">*</span></label>
+              <select name="parcel_id" class="form-select" required>
+                <option value="">-- Choose Parcel Awaiting Dispatch --</option>
+                {% for p in parcels %}
+                  <option value="{{ p.id }}" {% if selected_parcel_id == p.id %}selected{% endif %}>
+                    {{ p.tracking_id }} &bull; {{ p.source }} &rarr; {{ p.destination }} ({{ p.delivery_type }}, {{ p.weight }}kg) - [{{ p.status }}]
+                  </option>
+                {% endfor %}
+              </select>
+              <small class="text-muted">Only parcels in 'Booked' or 'At Branch' status are eligible.</small>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label small fw-semibold text-dark">Select Available Courier Agent <span class="text-danger">*</span></label>
+              <select name="agent_id" class="form-select" required>
+                <option value="">-- Choose Active On-Duty Agent --</option>
+                {% for ag in agents %}
+                  <option value="{{ ag.id }}">
+                    {{ ag.name }} &bull; Badge: {{ ag.employee_id }} ({{ ag.vehicle_type }} - {{ ag.vehicle_number }})
+                  </option>
+                {% endfor %}
+              </select>
+              <small class="text-muted">Only available, verified agents appear in this list.</small>
+            </div>
+
+            <button type="submit" class="btn btn-tp-primary w-100 py-3 fw-bold">
+              <i class="bi bi-send-check-fill me-1"></i> Assign Consignment
+            </button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Available Delivery Agents Roster -->
+    <div class="col-lg-6">
+      <div class="tp-card p-4">
+        <h5 class="fw-bold text-dark mb-3">
+          <i class="bi bi-bicycle text-success me-2"></i> Ready & Available Fleet ({{ agents|length }})
+        </h5>
+        <div class="table-responsive">
+          <table class="table table-modern align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Agent</th>
+                <th>Vehicle</th>
+                <th>Experience</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for ag in agents %}
+                <tr>
+                  <td>
+                    <div class="fw-bold text-dark">{{ ag.name }}</div>
+                    <div class="small text-muted">{{ ag.employee_id }} &bull; {{ ag.phone }}</div>
+                  </td>
+                  <td>
+                    <div class="small fw-semibold">{{ ag.vehicle_type }}</div>
+                    <div class="small text-muted font-monospace">{{ ag.vehicle_number }}</div>
+                  </td>
+                  <td>
+                    <span class="small">{{ ag.experience_years }} yr{{ ag.experience_years|pluralize }}</span>
+                  </td>
+                  <td>
+                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1">
+                      <span class="pulse-dot-green me-1"></span> Available
+                    </span>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="4" class="text-center py-4 text-muted">
+                    <i class="bi bi-exclamation-circle text-warning fs-3 d-block mb-1"></i>
+                    No couriers currently available. All active agents are assigned or off duty.
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
